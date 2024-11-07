@@ -1,0 +1,21 @@
+{%  extends 'base.html' %}
+{%  load static %}
+
+{% block content %}
+<h3>Welcome to Weather API data!</h3>
+{{ data }}
+<ul>
+  {% for key, value in data.items %}
+    <li>
+      {{ key }} : {{ value }}
+    </li>
+    <br>
+  {% endfor %}
+
+</ul>
+
+
+
+<a href="{% url 'analyzer:index' %}">Początek</a>
+
+{% endblock content %}

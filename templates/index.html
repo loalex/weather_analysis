@@ -1,0 +1,31 @@
+{%  extends 'base.html' %}
+{%  load static %}
+
+{% block content %}
+    <ol>
+        <li>
+            <a href="{% url 'analyzer:windy' %}">Windy</a>
+        </li>
+        <li>
+            <a href="{% url 'analyzer:open_weather_map' %}">Open Weather Map</a>
+        </li>
+        <li>
+            <a href="{% url 'analyzer:weather_api' %}">Weather API</a> (korzysta z WeatherAPI.com, prawdopodobnie do podmiany)
+        </li>
+        <li>
+            <a href="{% url 'analyzer:python_weather' %}">Python Weather</a>
+        </li>
+        <li>
+            Open Meteo (brakuje)
+        </li>
+        <li>
+            Weather Bit (brakuje)
+        </li>
+        <li>
+            Virtual Crossing (brakuje)
+        </li>
+        <li>
+            <a href="{% url 'analyzer:index' %}">Początek</a>
+        </li>
+    </ol>
+{% endblock content %}

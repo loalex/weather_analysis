@@ -1,0 +1,20 @@
+{%  extends 'base.html' %}
+{%  load static %}
+
+{% block content %}
+<h3>Welcome to Windy data!</h3>
+<ul>
+  {% for key, value in data.items %}
+    <li>
+      {{ key }} : {{ value }}
+    </li>
+    <br>
+  {% endfor %}
+
+</ul>
+
+
+
+<a href="{% url 'analyzer:index' %}">Początek</a>
+
+{% endblock content %}

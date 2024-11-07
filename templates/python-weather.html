@@ -1,0 +1,14 @@
+{%  extends 'base.html' %}
+{%  load static %}
+
+{% block content %}
+    <h3>Welcome to Python-Weather data!</h3>
+
+    {% for element in attributes %}
+        {{ element }}
+    {% endfor %}
+
+    <br>
+    <a href="{% url 'analyzer:index' %}">Początek</a>
+
+{% endblock content %}
