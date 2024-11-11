@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h3>Welcome to Virtual Crossing Data</h3>
+<ul>
+  {% for key, value in forecast_data.items %}
+    <li>
+      <strong>{{ key }}:</strong> {{ value }}
+    </li>
+    <br>
+  {% endfor %}
+</ul>
+
+<a href="{% url 'analyzer:index' %}">Początek</a>
+
+{% endblock content %}

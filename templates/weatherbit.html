@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<h3>Welcome to Weatherbit Forecast Data</h3>
+<ul>
+  {% for item in forecast_data %}
+    <li>
+      <strong>Temperature:</strong> {{ item.temp }} °C<br>
+      <strong>Precipitation:</strong> {{ item.precip }} mm<br>
+      <strong>Solar Radiation:</strong> {{ item.solar_rad }} W/m²
+    </li>
+    <br>
+  {% endfor %}
+</ul>
+
+<a href="{% url 'analyzer:index' %}">Początek</a>
+
+{% endblock content %}

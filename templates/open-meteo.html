@@ -1,10 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
 
-</body>
-</html>
+{% block content %}
+<h3>Open-Meteo Forecast Data</h3>
+
+<h4>Current Weather:</h4>
+<ul>
+  <li><strong>Temperature:</strong> {{ forecast.current_weather.temperature }} °C</li>
+  <li><strong>Humidity:</strong> {{ forecast.current_weather.relative_humidity }}%</li>
+</ul>
+
+<h4>Daily Forecast:</h4>
+<ul>
+  {% for day in forecast.daily %}
+    <li>
+      <strong>Sunrise:</strong> {{ day.sunrise }} <br>
+      <strong>Sunset:</strong> {{ day.sunset }}
+    </li>
+    <br>
+  {% endfor %}
+</ul>
+
+<h4>Hourly Forecast:</h4>
+<ul>
+  {% for hour in forecast.hourly %}
+    <li>
+      <strong>Time:</strong> {{ hour.time }} <br>
+      <strong>Temperature:</strong> {{ hour.temperature_2m }} °C <br>
+      <strong>Humidity:</strong> {{ hour.relative_humidity_2m }}%
+    </li>
+    <br>
+  {% endfor %}
+</ul>
+
+<a href="{% url 'analyzer:index' %}">Początek</a>
+
+{% endblock content %}

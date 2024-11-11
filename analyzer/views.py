@@ -1,3 +1,4 @@
+import urllib
 from datetime import datetime
 import json
 
@@ -7,6 +8,11 @@ import requests
 from django.shortcuts import render
 
 from weatherapi import WeatherPoint
+from weatherbit.api import Api
+
+
+from open_meteo import OpenMeteo
+from open_meteo.models import DailyParameters, HourlyParameters
 
 
 def index(request):
@@ -119,7 +125,78 @@ async def getweather(request):
     return render(request, "python-weather.html", {"data": weather, "attributes": available_attributes})
 
 
+def fetch_weatherbit_data(request):
+    api_key = "e7f4bdfe9101470982721ecc9e87f4f3"
+    lat = 38.00
+    lon = -125.75
 
-def fetch_open_meteo(request):
-    # code
-    return render(request, 'open-meteo.html')
+    api = Api(api_key)
+    api.set_granularity('daily')
+
+    try:
+        # Można użyć dowolnej z poniższych opcji do pobrania prognozy
+        forecast = api.get_forecast(lat=lat, lon=lon)
+        # forecast = api.get_forecast(city="Raleigh,NC")
+        # forecast = api.get_forecast(city="Raleigh", state="North Carolina", country="US")
+
+        # Pobieranie danych prognozy temperatury i opadów
+        series = forecast.get_series(['temp', 'precip', 'solar_rad'])
+
+        return render(request, "weatherbit.html", {"forecast_data": series})
+
+    except Exception as e:
+        print(f"Error fetching Weatherbit data: {e}")
+        return render(request, "error.html")
+
+
+def fetch_virtualcrossing_data(request):
+    BaseURL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'
+    ApiKey = 'PZ7J682SJRRNLFDVJ3F4GRGXL'
+    UnitGroup = 'us'
+    Location = 'Gdynia'
+    StartDate = ''
+    EndDate = ''
+    ContentType = "json"
+    Include = "days"
+
+    # Tworzenie URL z parametrami
+    ApiQuery = f"{BaseURL}{Location}"
+    if StartDate:
+        ApiQuery += f"/{StartDate}"
+        if EndDate:
+            ApiQuery += f"/{EndDate}"
+    ApiQuery += f"?unitGroup={UnitGroup}&contentType={ContentType}&include={Include}&key={ApiKey}"
+
+    try:
+        response = urllib.request.urlopen(ApiQuery)
+        data = response.read().decode("utf-8")
+
+        # Parsowanie JSON, jeśli potrzebne, np. json.loads(data)
+        return render(request, "virtualcrossing.html", {"forecast_data": data})
+
+    except urllib.error.HTTPError as e:
+        print(f"HTTP Error: {e.code} {e.read().decode()}")
+        return render(request, "error.html")
+    except urllib.error.URLError as e:
+        print(f"URL Error: {e.reason}")
+        return render(request, "error.html")
+
+
+async def fetch_open_meteo_data(request):
+    """Asynchronous function to fetch weather forecast data using Open-Meteo API."""
+    async with OpenMeteo() as open_meteo:
+        forecast = await open_meteo.forecast(
+            latitude=52.27,
+            longitude=6.87417,
+            current_weather=True,
+            daily=[
+                DailyParameters.SUNRISE,
+                DailyParameters.SUNSET,
+            ],
+            hourly=[
+                HourlyParameters.TEMPERATURE_2M,
+                HourlyParameters.RELATIVE_HUMIDITY_2M,
+            ],
+        )
+
+    return render(request, "open_meteo.html", {"forecast": forecast})
