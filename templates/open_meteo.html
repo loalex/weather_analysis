@@ -12,11 +12,11 @@
 
 <h4>Daily Forecast:</h4>
 <ul>
-  {% for day in forecast.daily %}
+  {% for day in sunrise %}
     <li>
-      <strong>Sunrise:</strong> {{ day.sunrise }} <br>
-      <strong>Sunset:</strong> {{ day.sunset }}
-    </li>
+      <strong>Sunrise:</strong> {{ day }} <br>
+     <!-- <strong>Sunset:</strong> {{ day.sunset }} -->
+     </li>
     <br>
   {% endfor %}
 </ul>

@@ -42,11 +42,17 @@ def fetch_windy_data(request):
             data = response.json()
             time_from_timestamp = []
             print(f"{data['ts']=}")
+            print(data)
             for element in data['ts']:
                 time_from_timestamp.append(datetime.fromtimestamp(element / 1000))
             print(f"{time_from_timestamp=}")
-
-            return render(request, "windy.html", {"data": data})
+            return render(request, "windy.html", {
+                "time_from_timestamp": time_from_timestamp,
+                "wind_u_surface": data["wind_u-surface"],
+                "dewpoint_surface": data["dewpoint-surface"],
+                "pressure_surface": data["pressure-surface"],
+                "rh_surface": data["rh-surface"],
+            })
         else:
             print(response.json())
             print(f"Błąd podczas pobierania danych: {response.status_code}")
@@ -110,7 +116,7 @@ async def getweather(request):
         weather = await client.get('Gdynia')
         available_attributes = [item for item in dir(weather) if not item.startswith("__")]
 
-        # print(getattr(weather))
+        print(getattr(weather))
 
         # returns the current day's forecast temperature (int)
         print(weather.temperature)
@@ -127,8 +133,8 @@ async def getweather(request):
 
 def fetch_weatherbit_data(request):
     api_key = "e7f4bdfe9101470982721ecc9e87f4f3"
-    lat = 38.00
-    lon = -125.75
+    lat = 54.31
+    lon = 18.31
 
     api = Api(api_key)
     api.set_granularity('daily')
@@ -139,9 +145,8 @@ def fetch_weatherbit_data(request):
         # forecast = api.get_forecast(city="Raleigh,NC")
         # forecast = api.get_forecast(city="Raleigh", state="North Carolina", country="US")
 
-        # Pobieranie danych prognozy temperatury i opadów
-        series = forecast.get_series(['temp', 'precip', 'solar_rad'])
-
+        series = forecast.get_series(['temp', 'precip', 'solar_rad','uv','wind_spd'])
+        print(series)
         return render(request, "weatherbit.html", {"forecast_data": series})
 
     except Exception as e:
@@ -170,9 +175,8 @@ def fetch_virtualcrossing_data(request):
     try:
         response = urllib.request.urlopen(ApiQuery)
         data = response.read().decode("utf-8")
-
-        # Parsowanie JSON, jeśli potrzebne, np. json.loads(data)
-        return render(request, "virtualcrossing.html", {"forecast_data": data})
+        forecast_data = json.loads(data)
+        return render(request, "virtualcrossing.html", {"forecast_data": forecast_data})
 
     except urllib.error.HTTPError as e:
         print(f"HTTP Error: {e.code} {e.read().decode()}")
@@ -192,11 +196,16 @@ async def fetch_open_meteo_data(request):
             daily=[
                 DailyParameters.SUNRISE,
                 DailyParameters.SUNSET,
+                DailyParameters.WIND_DIRECTION_10M_DOMINANT,
+                DailyParameters.APPARENT_TEMPERATURE_MAX,
+                DailyParameters.WIND_SPEED_10M_MAX
             ],
             hourly=[
                 HourlyParameters.TEMPERATURE_2M,
                 HourlyParameters.RELATIVE_HUMIDITY_2M,
             ],
         )
-
-    return render(request, "open_meteo.html", {"forecast": forecast})
+    print(forecast.daily.sunrise)
+    return render(request, "open_meteo.html", {"sunrise": forecast.daily.sunrise,
+                                               "sunset":forecast.daily.sunset,
+                                               "temp":forecast.daily.apparent_temperature_max})
