@@ -14,6 +14,8 @@ from weatherbit.api import Api
 from open_meteo import OpenMeteo
 from open_meteo.models import DailyParameters, HourlyParameters
 
+import math
+
 
 def index(request):
     return render(request, "index.html")
@@ -41,17 +43,33 @@ def fetch_windy_data(request):
         if response.status_code == 200:
             data = response.json()
             time_from_timestamp = []
+            temperatura = []  # Nowa lista na temperatury
+
             print(f"{data['ts']=}")
             print(data)
-            for element in data['ts']:
+
+            for element, dewpoint, rh in zip(data['ts'], data['dewpoint-surface'], data['rh-surface']):
+                # Przetwarzanie timestamp na czas
                 time_from_timestamp.append(datetime.fromtimestamp(element / 1000))
+
+                # Obliczanie temperatury z punktu rosy i wilgotności
+                dewpoint_celsius = dewpoint - 273.15  # Punkt rosy z kelwinów na stopnie Celsjusza
+                a = 17.625
+                b = 243.04
+                alpha = math.log(rh / 100) + (a * dewpoint_celsius) / (b + dewpoint_celsius)
+                temp_celsius = (b * alpha) / (a - alpha)
+                temperatura.append(temp_celsius)  # Dodaj temperaturę do listy
+
             print(f"{time_from_timestamp=}")
+            print(f"{temperatura=}")
+
             return render(request, "windy.html", {
                 "time_from_timestamp": time_from_timestamp,
                 "wind_u_surface": data["wind_u-surface"],
                 "dewpoint_surface": data["dewpoint-surface"],
                 "pressure_surface": data["pressure-surface"],
                 "rh_surface": data["rh-surface"],
+                "temperatura": temperatura,  # Dodajemy temperaturę do danych zwracanych do szablonu
             })
         else:
             print(response.json())
@@ -67,6 +85,7 @@ def fetch_weatherapp_data(request):
     api_key = '0d1764dc7eace6612e7d9a5e1168371f'
     city = 'Gdynia'  # będzie wczytywane z formularza!
     url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}'
+    #api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
     response = requests.get(url)
 
     if response.status_code == 200:
@@ -80,6 +99,7 @@ def fetch_weatherapp_data(request):
         print(f'Wind speed: {wind_speed} m/s')
         print(f'Wind direction: {wind_direction}')
         print(f'Description: {desc}')
+        print(data)
         return render(request, "openweathermap.html", {"data": data})
 
     else:
@@ -93,7 +113,6 @@ def fetch_weatherapi_data(request):
     latitude = 54.31
     longitude = 18.31
 
-    # Initializing the WeatherPoint
     point = WeatherPoint(latitude, longitude)
 
     # Setting the key for data access
@@ -106,6 +125,7 @@ def fetch_weatherapi_data(request):
     print(point.temp_c)  # temperature in celsius
     print(point.wind_kph)  # wind in kilometers per hour
     print(point.localtime)  # local datetime of the request
+    print()
     return render(request, "weatherapi.html", {"data": point})
 
 

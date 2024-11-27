@@ -12,6 +12,7 @@
     <th>dewpoint-surface</th>
     <th>pressure-surface</th>
     <th>wilgotnosc</th>
+    <th>temperatura</th>
   </tr>
 
   {% for t in time_from_timestamp %}
@@ -22,6 +23,7 @@
       <td>{{ dewpoint_surface|index:forloop.counter0 }} K</td>
       <td>{{ pressure_surface|index:forloop.counter0 }} Pa</td>
       <td>{{ rh_surface|index:forloop.counter0 }} %</td>
+      <td>{{ temperatura|index:forloop.counter0 }} °C</td>
     </tr>
   {% endfor %}
 
