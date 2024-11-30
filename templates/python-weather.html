@@ -1,14 +1,36 @@
-{%  extends 'base.html' %}
-{%  load static %}
-
+{% extends 'base.html' %}
 {% block content %}
-    <h3>Welcome to Python-Weather data!</h3>
 
-    {% for element in attributes %}
-        {{ element }}
+<h3>Prognoza pogody dla Gdyni</h3>
+
+<table border="1" style="width: 100%; border-collapse: collapse;">
+    <tr>
+        <th>Nr próby</th>
+        <th>Data</th>
+        <th>Godzina</th>
+        <th>Temperatura (°C)</th>
+        <th>Prędkość wiatru (mph)</th>
+        <th>Ciśnienie (hPa)</th>
+        <th>Wilgotność (%)</th>
+        <th>Opady (mm)</th>
+        <th>Opis</th>
+    </tr>
+
+    {% for daily in forecast_data %}
+        {% for hourly in daily.hourly %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ daily.date }}</td>
+                <td>{{ hourly.time }}</td>
+                <td>{{ hourly.temperature }}</td>
+                <td>{{ hourly.wind_speed }}</td>
+                <td>{{ hourly.pressure }}</td>
+                <td>{{ hourly.humidity }}</td>
+                <td>{{ hourly.precipitation }}</td>
+                <td>{{ hourly.description }}</td>
+            </tr>
+        {% endfor %}
     {% endfor %}
-
-    <br>
-    <a href="{% url 'analyzer:index' %}">Początek</a>
+</table>
 
 {% endblock content %}

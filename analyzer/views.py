@@ -125,30 +125,43 @@ def fetch_weatherapi_data(request):
     print(point.temp_c)  # temperature in celsius
     print(point.wind_kph)  # wind in kilometers per hour
     print(point.localtime)  # local datetime of the request
-    print()
     return render(request, "weatherapi.html", {"data": point})
 
 
 async def getweather(request):
-    # declare the client. the measuring unit used defaults to the metric system (celcius, km/h, etc.)
+    # Klient do pobierania danych pogodowych
     async with python_weather.Client(unit=python_weather.IMPERIAL) as client:
-        # fetch a weather forecast from a city
+        # Pobierz prognozę pogody dla Gdyni
         weather = await client.get('Gdynia')
-        available_attributes = [item for item in dir(weather) if not item.startswith("__")]
 
-        print(getattr(weather))
+        # Zmienna przechowująca dane
+        forecast_data = []
 
-        # returns the current day's forecast temperature (int)
-        print(weather.temperature)
-
-        # get the weather forecast for a few days
+        # Przetwarzanie prognozy dziennej
         for daily in weather:
-            print(daily)
+            daily_data = {
+                "date": daily.date,
+                "temperature": round((daily.temperature - 32) * 5 / 9, 2),  # Fahrenheit -> Celsius
+                "hourly": []
+            }
 
-            # hourly forecasts
+            # Przetwarzanie prognozy godzinowej
             for hourly in daily:
-                print(f' --> {hourly!r}')
-    return render(request, "python-weather.html", {"data": weather, "attributes": available_attributes})
+                hourly_data = {
+                    "time": hourly.time,
+                    "temperature": round((hourly.temperature - 32) * 5 / 9, 2),  # Fahrenheit -> Celsius
+                    "wind_speed": getattr(hourly, "wind_speed", "N/A"),  # Jeśli brak danych
+                    "pressure": round(getattr(hourly, "pressure", 0) / 100, 2) if hasattr(hourly, "pressure") else "N/A",  # Pa -> hPa
+                    "humidity": getattr(hourly, "humidity", "N/A"),  # Wilgotność
+                    "precipitation": getattr(hourly, "precipitation", "N/A"),  # Opady
+                    "description": hourly.description
+                }
+                daily_data["hourly"].append(hourly_data)
+
+            forecast_data.append(daily_data)
+
+    # Renderuj szablon z danymi
+    return render(request, "python-weather.html", {"forecast_data": forecast_data})
 
 
 def fetch_weatherbit_data(request):
