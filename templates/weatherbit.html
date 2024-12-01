@@ -1,19 +1,35 @@
 {% extends 'base.html' %}
-{% load static %}
-
 {% block content %}
-<h3>Welcome to Weatherbit Forecast Data</h3>
-<ul>
-  {% for item in forecast_data %}
-    <li>
-      <strong>Temperature:</strong> {{ item.temp }} °C<br>
-      <strong>Precipitation:</strong> {{ item.precip }} mm<br>
-      <strong>Solar Radiation:</strong> {{ item.solar_rad }} W/m²
-    </li>
-    <br>
-  {% endfor %}
-</ul>
+<h3>Weatherbit Forecast</h3>
+
+<table border="1" style="width: 100%; border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th>Numer pomiaru</th>
+            <th>Data i czas</th>
+            <th>Temperatura (°C)</th>
+            <th>Opady (mm)</th>
+            <th>Ciśnienie (hPa)</th>
+            <th>Zachmurzenie (%)</th>
+            <th>Prędkość wiatru (m/s)</th>
+            <th>Indeks UV</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in forecast_data %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ entry.datetime }}</td>
+            <td>{{ entry.temp }}</td>
+            <td>{{ entry.precip }}</td>
+            <td>{{ entry.pres }}</td>
+            <td>{{ entry.clouds }}</td>
+            <td>{{ entry.wind_spd }}</td>
+            <td>{{ entry.uv }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 <a href="{% url 'analyzer:index' %}">Początek</a>
-
 {% endblock content %}

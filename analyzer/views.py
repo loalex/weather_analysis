@@ -151,7 +151,7 @@ async def getweather(request):
                     "time": hourly.time,
                     "temperature": round((hourly.temperature - 32) * 5 / 9, 2),  # Fahrenheit -> Celsius
                     "wind_speed": getattr(hourly, "wind_speed", "N/A"),  # Jeśli brak danych
-                    "pressure": round(getattr(hourly, "pressure", 0) / 100, 2) if hasattr(hourly, "pressure") else "N/A",  # Pa -> hPa
+                    "pressure": round(getattr(hourly, "pressure", 0) * 33.8639, 2) if hasattr(hourly, "pressure") else "N/A",  # inHg -> hPa
                     "humidity": getattr(hourly, "humidity", "N/A"),  # Wilgotność
                     "precipitation": getattr(hourly, "precipitation", "N/A"),  # Opady
                     "description": hourly.description
@@ -160,7 +160,6 @@ async def getweather(request):
 
             forecast_data.append(daily_data)
 
-    # Renderuj szablon z danymi
     return render(request, "python-weather.html", {"forecast_data": forecast_data})
 
 
@@ -178,7 +177,7 @@ def fetch_weatherbit_data(request):
         # forecast = api.get_forecast(city="Raleigh,NC")
         # forecast = api.get_forecast(city="Raleigh", state="North Carolina", country="US")
 
-        series = forecast.get_series(['temp', 'precip', 'solar_rad','uv','wind_spd'])
+        series = forecast.get_series(['datetime', 'temp', 'precip', 'pres', 'clouds','wind_spd', 'uv'])
         print(series)
         return render(request, "weatherbit.html", {"forecast_data": series})
 
