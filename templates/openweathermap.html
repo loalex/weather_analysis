@@ -1,20 +1,39 @@
-{%  extends 'base.html' %}
-{%  load static %}
-
+{% extends 'base.html' %}
 {% block content %}
-<h3>Welcome to OpenWeatherMap data!</h3>
-<ul>
-  {% for key, value in data.items %}
-    <li>
-      {{ key }} : {{ value }}
-    </li>
-    <br>
-  {% endfor %}
+<h3>Prognoza pogody dla miasta {{ city }}</h3>
 
-</ul>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Nr pomiaru</th>
+            <th>Data</th>
+            <th>Godzina</th>
+            <th>Temperatura (°C)</th>
+            <th>Prędkość wiatru (m/s)</th>
+            <th>Kierunek wiatru (°)</th>
+            <th>Wilgotność (%)</th>
+            <th>Ciśnienie (hPa)</th>
+            <th>Opady (mm)</th>
+            <th>Opis pogody</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in forecast_data %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ row.time|slice:":10" }}</td>
+            <td>{{ row.time|slice:"11:" }}</td>
+            <td>{{ row.temperature }}</td>
+            <td>{{ row.wind_speed }}</td>
+            <td>{{ row.wind_direction }}</td>
+            <td>{{ row.humidity }}</td>
+            <td>{{ row.pressure }}</td>
+            <td>{{ row.precipitation }}</td>
+            <td>{{ row.description }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-
-
-<a href="{% url 'analyzer:index' %}">Początek</a>
-
+<a href="{% url 'analyzer:index' %}">Powrót do strony głównej</a>
 {% endblock content %}

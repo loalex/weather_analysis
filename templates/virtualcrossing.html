@@ -1,18 +1,38 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block content %}
-<h3>Welcome to Virtual Crossing Data</h3>
+<h3>Prognoza Pogody dla Gdyni</h3>
 
-<ul>
-  {% for key, value in forecast_data.items %}
-    <li>
-      <strong>{{ key }}:</strong> {{ value }}
-    </li>
-    <br>
-  {% endfor %}
-</ul>
+{% if forecast_data.days %}
+<table border="1" style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr>
+            <th>Numer Pomiaru</th>
+            <th>Data</th>
+            <th>Temperatura (°C)</th>
+            <th>Opady (mm)</th>
+            <th>Prędkość Wiatru (km/h)</th>
+            <th>Indeks UV</th>
+            <th>Opis</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for day in forecast_data.days %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ day.datetime }}</td>
+            <td>{{ day.temp }}</td>
+            <td>{{ day.precip }}</td>
+            <td>{{ day.windspeed }}</td>
+            <td>{{ day.uvindex }}</td>
+            <td>{{ day.description }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Brak danych do wyświetlenia.</p>
+{% endif %}
 
-<a href="{% url 'analyzer:index' %}">Początek</a>
-
+<a href="{% url 'analyzer:index' %}">Powrót do początku</a>
 {% endblock content %}

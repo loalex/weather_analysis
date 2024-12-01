@@ -83,24 +83,29 @@ def fetch_windy_data(request):
 
 def fetch_weatherapp_data(request):
     api_key = '0d1764dc7eace6612e7d9a5e1168371f'
-    city = 'Gdynia'  # będzie wczytywane z formularza!
-    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}'
-    #api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={API key}
+    city = 'Gdynia'  # Docelowo wczytywane z formularza
+    url = f'http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}'
+
     response = requests.get(url)
 
     if response.status_code == 200:
         data = response.json()
-        temp = data['main']['temp']
-        temp = temp - 273.15
-        wind_speed = data['wind']['speed']
-        wind_direction = data['wind']['deg']
-        desc = data['weather'][0]['description']
-        print(f'Temperature: {temp} C')
-        print(f'Wind speed: {wind_speed} m/s')
-        print(f'Wind direction: {wind_direction}')
-        print(f'Description: {desc}')
-        print(data)
-        return render(request, "openweathermap.html", {"data": data})
+
+        # Procesowanie danych do tabelki
+        forecast_data = []
+        for entry in data['list']:
+            forecast_data.append({
+                "time": entry['dt_txt'],  # Data i godzina
+                "temperature": round(entry['main']['temp'] - 273.15, 2),  # Temperatura w °C
+                "wind_speed": entry['wind']['speed'],  # Prędkość wiatru w m/s
+                "wind_direction": entry['wind']['deg'],  # Kierunek wiatru w stopniach
+                "humidity": entry['main']['humidity'],  # Wilgotność w %
+                "pressure": entry['main']['pressure'],  # Ciśnienie w hPa
+                "description": entry['weather'][0]['description'],  # Opis pogodowy
+                "precipitation": entry.get('rain', {}).get('3h', 0),  # Opady w mm (domyślnie 0)
+            })
+
+        return render(request, "openweathermap.html", {"forecast_data": forecast_data, "city": city})
 
     else:
         print('Error fetching weather data')
@@ -108,24 +113,33 @@ def fetch_weatherapp_data(request):
 
 
 def fetch_weatherapi_data(request):
-    # ustawienie punktu
+    # Ustawienie punktu
     api_key = '32ac4dbcfb684f52b9275344240311'
-    latitude = 54.31
-    longitude = 18.31
+    latitude = 54.31  # Szerokość geograficzna (np. Gdynia)
+    longitude = 18.31  # Długość geograficzna (np. Gdynia)
 
+    # Punkt pogodowy
     point = WeatherPoint(latitude, longitude)
 
-    # Setting the key for data access
+    # Ustawienie klucza API
     point.set_key(api_key)
 
-    # get current weather data
-    p = point.get_current_weather()
-    print(f"{p=}")
+    # Pobranie bieżących danych pogodowych
+    current_weather = point.get_current_weather()
 
-    print(point.temp_c)  # temperature in celsius
-    print(point.wind_kph)  # wind in kilometers per hour
-    print(point.localtime)  # local datetime of the request
-    return render(request, "weatherapi.html", {"data": point})
+    # Dane do przekazania do HTML
+    weather_data = {
+        "localtime": point.localtime,  # Czas lokalny zapytania
+        "temperature": point.temp_c,  # Temperatura w °C
+        "wind_speed": point.wind_kph,  # Prędkość wiatru w km/h
+        "wind_direction": point.wind_degree,  # Kierunek wiatru w stopniach
+        "humidity": point.humidity,  # Wilgotność w %
+        "pressure": point.pressure_mb,  # Ciśnienie w hPa
+        "precipitation": point.precip_mm,  # Opady w mm
+        "condition": point.condition_code,  # Kod opisu pogody (zamiana na opis w HTML)
+    }
+
+    return render(request, "weatherapi.html", {"weather_data": weather_data})
 
 
 async def getweather(request):
@@ -163,6 +177,50 @@ async def getweather(request):
     return render(request, "python-weather.html", {"forecast_data": forecast_data})
 
 
+async def fetch_open_meteo_data(request):
+    """Asynchronous function to fetch weather forecast data using Open-Meteo API."""
+    async with OpenMeteo() as open_meteo:
+        forecast = await open_meteo.forecast(
+            latitude=54.31,
+            longitude=18.31,
+            current_weather=True,
+            daily=[
+                DailyParameters.SUNRISE,
+                DailyParameters.SUNSET,
+            ],
+            hourly=[
+                HourlyParameters.TEMPERATURE_2M,
+                HourlyParameters.RELATIVE_HUMIDITY_2M,
+                HourlyParameters.PRECIPITATION,
+                HourlyParameters.PRESSURE_MSL,
+                HourlyParameters.CLOUD_COVER,
+                HourlyParameters.WIND_SPEED_10M,
+                HourlyParameters.WIND_DIRECTION_10M,
+            ],
+        )
+
+    # Debugowanie danych (opcjonalne, pomocne podczas sprawdzania)
+    print("Forecast Data:", forecast)
+
+    # Przygotowanie danych do tabeli (co 3 godziny)
+    hourly_data = [
+        {
+            "time": forecast.hourly.time[i],
+            "temperature": forecast.hourly.temperature_2m[i],
+            "wind_speed": forecast.hourly.wind_speed_10m[i],
+            "precipitation": forecast.hourly.precipitation[i],
+            "pressure": forecast.hourly.pressure_msl[i],
+            "humidity": forecast.hourly.relative_humidity_2m[i],
+            "cloud_cover": forecast.hourly.cloud_cover[i],
+            "wind_direction": forecast.hourly.wind_direction_10m[i],
+        }
+        for i in range(0, len(forecast.hourly.time), 3)  # Pobieranie danych co 3 godziny
+    ]
+
+    # Przekazanie danych do szablonu
+    return render(request, "open_meteo.html", {"hourly_data": hourly_data})
+
+
 def fetch_weatherbit_data(request):
     api_key = "e7f4bdfe9101470982721ecc9e87f4f3"
     lat = 54.31
@@ -189,7 +247,7 @@ def fetch_weatherbit_data(request):
 def fetch_virtualcrossing_data(request):
     BaseURL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'
     ApiKey = 'PZ7J682SJRRNLFDVJ3F4GRGXL'
-    UnitGroup = 'us'
+    UnitGroup = 'metric'
     Location = 'Gdynia'
     StartDate = ''
     EndDate = ''
@@ -208,6 +266,7 @@ def fetch_virtualcrossing_data(request):
         response = urllib.request.urlopen(ApiQuery)
         data = response.read().decode("utf-8")
         forecast_data = json.loads(data)
+        print(forecast_data)
         return render(request, "virtualcrossing.html", {"forecast_data": forecast_data})
 
     except urllib.error.HTTPError as e:
@@ -218,26 +277,4 @@ def fetch_virtualcrossing_data(request):
         return render(request, "error.html")
 
 
-async def fetch_open_meteo_data(request):
-    """Asynchronous function to fetch weather forecast data using Open-Meteo API."""
-    async with OpenMeteo() as open_meteo:
-        forecast = await open_meteo.forecast(
-            latitude=52.27,
-            longitude=6.87417,
-            current_weather=True,
-            daily=[
-                DailyParameters.SUNRISE,
-                DailyParameters.SUNSET,
-                DailyParameters.WIND_DIRECTION_10M_DOMINANT,
-                DailyParameters.APPARENT_TEMPERATURE_MAX,
-                DailyParameters.WIND_SPEED_10M_MAX
-            ],
-            hourly=[
-                HourlyParameters.TEMPERATURE_2M,
-                HourlyParameters.RELATIVE_HUMIDITY_2M,
-            ],
-        )
-    print(forecast.daily.sunrise)
-    return render(request, "open_meteo.html", {"sunrise": forecast.daily.sunrise,
-                                               "sunset":forecast.daily.sunset,
-                                               "temp":forecast.daily.apparent_temperature_max})
+

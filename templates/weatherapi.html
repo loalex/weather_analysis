@@ -1,21 +1,49 @@
-{%  extends 'base.html' %}
-{%  load static %}
-
+{% extends 'base.html' %}
 {% block content %}
-<h3>Welcome to Weather API data!</h3>
-{{ data }}
-<ul>
-  {% for key, value in data.items %}
-    <li>
-      {{ key }} : {{ value }}
-    </li>
-    <br>
-  {% endfor %}
+<h3>Bieżące dane pogodowe</h3>
 
-</ul>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Parametr</th>
+            <th>Wartość</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Czas lokalny</td>
+            <td>{{ weather_data.localtime }}</td>
+        </tr>
+        <tr>
+            <td>Temperatura (°C)</td>
+            <td>{{ weather_data.temperature }}</td>
+        </tr>
+        <tr>
+            <td>Prędkość wiatru (km/h)</td>
+            <td>{{ weather_data.wind_speed }}</td>
+        </tr>
+        <tr>
+            <td>Kierunek wiatru (°)</td>
+            <td>{{ weather_data.wind_direction }}</td>
+        </tr>
+        <tr>
+            <td>Wilgotność (%)</td>
+            <td>{{ weather_data.humidity }}</td>
+        </tr>
+        <tr>
+            <td>Ciśnienie (hPa)</td>
+            <td>{{ weather_data.pressure }}</td>
+        </tr>
+        <tr>
+            <td>Opady (mm)</td>
+            <td>{{ weather_data.precipitation }}</td>
+        </tr>
+        <tr>
+            <td>Stan pogody</td>
+            <td>{{ weather_data.condition }}</td>
+        </tr>
+    </tbody>
+</table>
 
-
-
-<a href="{% url 'analyzer:index' %}">Początek</a>
-
+<a href="{% url 'analyzer:index' %}">Powrót do strony głównej</a>
 {% endblock content %}
