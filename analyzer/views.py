@@ -91,7 +91,6 @@ def fetch_weatherapp_data(request):
     if response.status_code == 200:
         data = response.json()
 
-        # Procesowanie danych do tabelki
         forecast_data = []
         for entry in data['list']:
             forecast_data.append({
@@ -101,8 +100,8 @@ def fetch_weatherapp_data(request):
                 "wind_direction": entry['wind']['deg'],  # Kierunek wiatru w stopniach
                 "humidity": entry['main']['humidity'],  # Wilgotność w %
                 "pressure": entry['main']['pressure'],  # Ciśnienie w hPa
-                "description": entry['weather'][0]['description'],  # Opis pogodowy
-                "precipitation": entry.get('rain', {}).get('3h', 0),  # Opady w mm (domyślnie 0)
+                "description": entry['weather'][0]['description'],
+                "precipitation": entry.get('rain', {}).get('3h', 0),
             })
 
         return render(request, "openweathermap.html", {"forecast_data": forecast_data, "city": city})
@@ -115,31 +114,41 @@ def fetch_weatherapp_data(request):
 def fetch_weatherapi_data(request):
     # Ustawienie punktu
     api_key = '32ac4dbcfb684f52b9275344240311'
-    latitude = 54.31  # Szerokość geograficzna (np. Gdynia)
-    longitude = 18.31  # Długość geograficzna (np. Gdynia)
+    latitude = 54.31
+    longitude = 18.31
+    days = 3  # Maksymalna liczba dni dla darmowego planu
+    url = f"https://api.weatherapi.com/v1/forecast.json?key={api_key}&q={latitude},{longitude}&days={days}"
 
-    # Punkt pogodowy
-    point = WeatherPoint(latitude, longitude)
+    response = requests.get(url)
 
-    # Ustawienie klucza API
-    point.set_key(api_key)
+    if response.status_code == 200:
+        data = response.json()
+        hourly_forecast_data = []
 
-    # Pobranie bieżących danych pogodowych
-    current_weather = point.get_current_weather()
+        # Iterowanie po dniach i godzinach
+        probe_number = 1
+        for day in data["forecast"]["forecastday"]:
+            for hour in day["hour"]:
+                hourly_forecast_data.append({
+                    "probe": probe_number,
+                    "time": hour["time"],
+                    "temp": hour["temp_c"],
+                    "precipitation": hour["precip_mm"],
+                    "humidity": hour["humidity"],
+                    "condition": hour["condition"]["text"],
+                    "wind_speed": hour["wind_kph"],
+                    "wind_direction": hour["wind_dir"],
+                    "pressure": hour["pressure_mb"],
+                    "uv": hour.get("uv", "Brak danych")
+                })
+                probe_number += 1  # Zwiększenie numeru próby
 
-    # Dane do przekazania do HTML
-    weather_data = {
-        "localtime": point.localtime,  # Czas lokalny zapytania
-        "temperature": point.temp_c,  # Temperatura w °C
-        "wind_speed": point.wind_kph,  # Prędkość wiatru w km/h
-        "wind_direction": point.wind_degree,  # Kierunek wiatru w stopniach
-        "humidity": point.humidity,  # Wilgotność w %
-        "pressure": point.pressure_mb,  # Ciśnienie w hPa
-        "precipitation": point.precip_mm,  # Opady w mm
-        "condition": point.condition_code,  # Kod opisu pogody (zamiana na opis w HTML)
-    }
+        return render(request, "weatherapi.html", {"hourly_forecast_data": hourly_forecast_data})
 
-    return render(request, "weatherapi.html", {"weather_data": weather_data})
+    else:
+        return render(request, "error.html", {"message": "Nie udało się pobrać prognozy pogody."})
+
+
 
 
 async def getweather(request):

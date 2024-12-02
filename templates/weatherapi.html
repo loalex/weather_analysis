@@ -1,47 +1,37 @@
 {% extends 'base.html' %}
 {% block content %}
-<h3>Bieżące dane pogodowe</h3>
+<h3>Prognoza pogody co godzinę (maksymalnie na 3 dni)</h3>
 
 <table border="1">
     <thead>
         <tr>
-            <th>Parametr</th>
-            <th>Wartość</th>
+            <th>Nr próby</th>
+            <th>Czas</th>
+            <th>Temperatura (°C)</th>
+            <th>Opady (mm)</th>
+            <th>Wilgotność (%)</th>
+            <th>Stan pogody</th>
+            <th>Prędkość wiatru (km/h)</th>
+            <th>Kierunek wiatru</th>
+            <th>Ciśnienie (hPa)</th>
+            <th>Indeks UV</th>
         </tr>
     </thead>
     <tbody>
+        {% for hour in hourly_forecast_data %}
         <tr>
-            <td>Czas lokalny</td>
-            <td>{{ weather_data.localtime }}</td>
+            <td>{{ hour.probe }}</td>
+            <td>{{ hour.time }}</td>
+            <td>{{ hour.temp }}</td>
+            <td>{{ hour.precipitation }}</td>
+            <td>{{ hour.humidity }}</td>
+            <td>{{ hour.condition }}</td>
+            <td>{{ hour.wind_speed }}</td>
+            <td>{{ hour.wind_direction }}</td>
+            <td>{{ hour.pressure }}</td>
+            <td>{{ hour.uv }}</td>
         </tr>
-        <tr>
-            <td>Temperatura (°C)</td>
-            <td>{{ weather_data.temperature }}</td>
-        </tr>
-        <tr>
-            <td>Prędkość wiatru (km/h)</td>
-            <td>{{ weather_data.wind_speed }}</td>
-        </tr>
-        <tr>
-            <td>Kierunek wiatru (°)</td>
-            <td>{{ weather_data.wind_direction }}</td>
-        </tr>
-        <tr>
-            <td>Wilgotność (%)</td>
-            <td>{{ weather_data.humidity }}</td>
-        </tr>
-        <tr>
-            <td>Ciśnienie (hPa)</td>
-            <td>{{ weather_data.pressure }}</td>
-        </tr>
-        <tr>
-            <td>Opady (mm)</td>
-            <td>{{ weather_data.precipitation }}</td>
-        </tr>
-        <tr>
-            <td>Stan pogody</td>
-            <td>{{ weather_data.condition }}</td>
-        </tr>
+        {% endfor %}
     </tbody>
 </table>
 

@@ -1,31 +1,111 @@
-{%  extends 'base.html' %}
-{%  load static %}
+{% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-    <ol>
-        <li>
-            <a href="{% url 'analyzer:windy' %}">Windy</a>
-        </li>
-        <li>
-            <a href="{% url 'analyzer:open_weather_map' %}">Open Weather Map</a>
-        </li>
-        <li>
-            <a href="{% url 'analyzer:weather_api' %}">Weather API</a> (korzysta z WeatherAPI.com, prawdopodobnie do podmiany)
-        </li>
-        <li>
-            <a href="{% url 'analyzer:python_weather' %}">Python Weather</a>
-        </li>
-        <li>
-            <a href="{% url 'analyzer:open-meteo' %}">Open-meteo</a>
-        </li>
-        <li>
-            <a href="{% url 'analyzer:weather-bit' %}">Weather-bit</a>
-        </li>
-        <li>
-            <a href="{% url 'analyzer:virtualcrossing' %}">Virtual Crossing</a>
-        </li>
-        <li>
-            <a href="{% url 'analyzer:index' %}">Początek</a>
-        </li>
-    </ol>
+<html lang="pl">
+<head>
+    <style>
+        /* Ogólne ustawienia */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #e0f7fa; /* Jasny niebieski */
+            color: #333;
+        }
+
+        /* Pasek nawigacyjny */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0077c2; /* Niebieski pasek */
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .navbar-title h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .navbar-image img {
+            height: 50px;
+            width: auto;
+        }
+
+        /* Główna zawartość */
+        .main-content {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .main-content h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .links-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .links-list li {
+            margin: 10px 0;
+        }
+
+        .links-list a {
+            text-decoration: none;
+            color: #0077c2;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .links-list a:hover {
+            color: #005495; /* Ciemniejszy niebieski na hover */
+        }
+
+        /* Stopka */
+        .footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #004a82; /* Ciemniejszy niebieski */
+            color: white;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Pasek nawigacyjny -->
+    <header class="navbar">
+        <div class="navbar-title">
+            <h1>Prognoza Pogody</h1>
+        </div>
+        <div class="navbar-image">
+            <img src="{% static 'images/weather_analizer.jpg' %}" alt="Weather Icon">
+        </div>
+    </header>
+
+    <!-- Główna zawartość strony -->
+    <main class="main-content">
+        <h2>Wybierz źródło prognozy pogody:</h2>
+        <ol class="links-list">
+            <li><a href="{% url 'analyzer:windy' %}">Windy</a></li>
+            <li><a href="{% url 'analyzer:open_weather_map' %}">Open Weather Map</a></li>
+            <li><a href="{% url 'analyzer:weather_api' %}">Weather API</a></li>
+            <li><a href="{% url 'analyzer:python_weather' %}">Python Weather</a></li>
+            <li><a href="{% url 'analyzer:open-meteo' %}">Open-meteo</a></li>
+            <li><a href="{% url 'analyzer:weather-bit' %}">Weather-bit</a></li>
+            <li><a href="{% url 'analyzer:virtualcrossing' %}">Virtual Crossing</a></li>
+            <li><a href="{% url 'analyzer:index' %}">Początek</a></li>
+        </ol>
+    </main>
+
+    <!-- Stopka -->
+    <footer class="footer">
+        <p>© 2025 Prognoza Pogody - Centrum informacji pogodowych</p>
+    </footer>
+</body>
+</html>
 {% endblock content %}
