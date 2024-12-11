@@ -1,38 +1,127 @@
 {% extends 'base.html' %}
 {% load static %}
 
+
 {% block content %}
 
-<body>
-    <!-- Pasek nawigacyjny -->
-    <header class="navbar">
-        <div class="navbar-title">
-            <h1>Prognoza Pogody</h1>
-        </div>
-        <div class="navbar-image">
-            <img src="{% static 'images/weather_analizer.jpg' %}" alt="Weather Icon">
+    <!-- Główna zawartość strony -->
+        
+    <!-- Header-->
+    <header class="py-5">
+        <div class="container px-lg-5">
+            <div class="p-4 p-lg-5 bg-light rounded-3 text-center">
+                <div class="m-4 m-lg-5">
+                    <h1 class="display-5 fw-bold">Centrum prognoz pogodowych <i class="bi bi-emoji-sunglasses"></i></h1>
+                    <p class="fs-4">Aplikacja umożliwia .................................</p>
+                    <p class="fs-4">Dane pobierane są z .................................</p>
+                    <p class="fs-4">Domyślną lokalizacją jest Gdynia.</p>
+
+
+                </div>
+            </div>
         </div>
     </header>
+    
+    <!-- Page Content-->
+    <section class="pt-4">
+        <div class="container px-lg-5">
+            <!-- Page Features-->
+            <div class="row gx-lg-5">
+                <div class="col-lg-6 col-xxl-4 mb-5">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
+                            <div class="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+                                <a href="{% url 'analyzer:windy' %}" class="text-white">
+                                    <i class="bi bi-wind"></i>
+                                </a>
+                            </div>
+                            <h2 class="fs-4 fw-bold">Windy</h2>
+                            <p class="mb-0">WWW: <a href="https://www.windy.com/">https://www.windy.com/</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-xxl-4 mb-5">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
+                            <div class="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+                                <a href="{% url 'analyzer:open_weather_map' %}" class="text-white">
+                                    <i class="bi bi-cloud-hail"></i>
+                                </a>
+                            </div>
+                            <h2 class="fs-4 fw-bold">Open Weather Map</h2>
+                            <p class="mb-0">WWW: <a href="https://www.windy.com/">https://www.windy.com/</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-xxl-4 mb-5">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
+                            <div class="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+                                <a href="{% url 'analyzer:weather_api' %}" class="text-white">
+                                    <i class="bi bi-umbrella"></i>
+                                </a>
+                            </div>
+                            <h2 class="fs-4 fw-bold">Weather API</h2>
+                            <p class="mb-0">WWW: <a href="https://www.windy.com/">https://www.windy.com/</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-xxl-4 mb-5">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
+                            <div class="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+                                <a href="{% url 'analyzer:python_weather' %}" class="text-white">
+                                    <i class="bi bi-tsunami"></i>
+                                </a>
+                            </div>
+                            <h2 class="fs-4 fw-bold">Python Weather</h2>
+                            <p class="mb-0">WWW: <a href="https://www.windy.com/">https://www.windy.com/</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-xxl-4 mb-5">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
+                            <div class="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+                                <a href="{% url 'analyzer:open-meteo' %}" class="text-white">
+                                    <i class="bi bi-moon-stars"></i>
+                                </a>
+                            </div>
+                            <h2 class="fs-4 fw-bold">Open Meteo</h2>
+                            <p class="mb-0">WWW: <a href="https://www.windy.com/">https://www.windy.com/</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-xxl-4 mb-5">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
+                            <div class="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+                                <a href="{% url 'analyzer:weather-bit' %}" class="text-white">
+                                    <i class="bi bi-tornado"></i>
+                                </a>
+                            </div>
+                            <h2 class="fs-4 fw-bold">Weather Bit</h2>
+                            <p class="mb-0">WWW: <a href="https://www.windy.com/">https://www.windy.com/</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-xxl-4 mb-5">
+                    <div class="card bg-light border-0 h-100">
+                        <div class="card-body text-center p-4 p-lg-5 pt-0 pt-lg-0">
+                            <div class="feature bg-primary bg-gradient text-white rounded-3 mb-4 mt-n4">
+                                <a href="{% url 'analyzer:virtualcrossing' %}" class="text-white">
+                                    <i class="bi bi-snow"></i>
+                                </a>
+                            </div>
+                            <h2 class="fs-4 fw-bold">Virtual Crossing</h2>
+                            <p class="mb-0">WWW: <a href="https://www.windy.com/">https://www.windy.com/</a></p>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Główna zawartość strony -->
-    <main class="main-content">
-        <h2>Wybierz źródło prognozy pogody:</h2>
-        <ol class="links-list">
-            <li><a href="{% url 'analyzer:windy' %}">Windy</a></li>
-            <li><a href="{% url 'analyzer:open_weather_map' %}">Open Weather Map</a></li>
-            <li><a href="{% url 'analyzer:weather_api' %}">Weather API</a></li>
-            <li><a href="{% url 'analyzer:python_weather' %}">Python Weather</a></li>
-            <li><a href="{% url 'analyzer:open-meteo' %}">Open-meteo</a></li>
-            <li><a href="{% url 'analyzer:weather-bit' %}">Weather-bit</a></li>
-            <li><a href="{% url 'analyzer:virtualcrossing' %}">Virtual Crossing</a></li>
-            <li><a href="{% url 'analyzer:index' %}">Początek</a></li>
-        </ol>
-    </main>
+            </div>
+        </div>
+    </section>
+        
 
-    <!-- Stopka -->
-    <footer class="footer">
-        <p>© 2025 Prognoza Pogody - Centrum informacji pogodowych</p>
-    </footer>
-</body>
-</html>
 {% endblock content %}

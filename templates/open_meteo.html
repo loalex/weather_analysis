@@ -1,37 +1,40 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<h3>Prognoza pogody - Dane co 3 godziny</h3>
-
-<table border="1">
-    <thead>
-        <tr>
-            <th>Nr pomiaru</th>
-            <th>Data</th>
-            <th>Temperatura (°C)</th>
-            <th>Prędkość wiatru (m/s)</th>
-            <th>Opady (mm)</th>
-            <th>Ciśnienie (hPa)</th>
-            <th>Wilgotność (%)</th>
-            <th>Zachmurzenie (%)</th>
-            <th>Kierunek wiatru</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in hourly_data %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ row.time|slice:":10" }}</td>
-            <td>{{ row.temperature }}</td>
-            <td>{{ row.wind_speed }}</td>
-            <td>{{ row.precipitation }}</td>
-            <td>{{ row.pressure }}</td>
-            <td>{{ row.humidity }}</td>
-            <td>{{ row.cloud_cover }}</td>
-            <td>{{ row.wind_direction }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<a href="{% url 'analyzer:index' %}">Powrót do strony głównej</a>
+    
+    <h3>Prognoza pogody - Dane co 3 godziny</h3>
+    
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nr pomiaru</th>
+                <th>Data</th>
+                <th>Temperatura (°C)</th>
+                <th>Prędkość wiatru (m/s)</th>
+                <th>Opady (mm)</th>
+                <th>Ciśnienie (hPa)</th>
+                <th>Wilgotność (%)</th>
+                <th>Zachmurzenie (%)</th>
+                <th>Kierunek wiatru</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in hourly_data %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ row.time|slice:":10" }}</td>
+                <td>{{ row.temperature }}</td>
+                <td>{{ row.wind_speed }}</td>
+                <td>{{ row.precipitation }}</td>
+                <td>{{ row.pressure }}</td>
+                <td>{{ row.humidity }}</td>
+                <td>{{ row.cloud_cover }}</td>
+                <td>{{ row.wind_direction }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <a href="{% url 'analyzer:index' %}">Powrót do strony głównej</a>
+    
 {% endblock content %}

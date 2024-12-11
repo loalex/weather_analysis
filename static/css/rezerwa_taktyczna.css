@@ -25,6 +25,11 @@
             height: auto;
         }
 
+        header i {
+            height: auto;
+            color: white;
+        }
+
         header h1 {
             margin: 0;
             font-size: 24px;
@@ -82,8 +87,13 @@
 
         }
 
-        td {
-        text-align:center;
+        table td {
+            text-align:center;
+        }
+
+        table {
+            border: 3px solid;  /* klasy z Bootstrapa mają wyższy priorytet niż te */
+            border-collapse: collapse;
         }
 
         /*

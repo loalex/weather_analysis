@@ -21,3 +21,9 @@ Weather Analyzer is a web application designed for analyzing weather forecasts f
 - `static/images` - Static files, including the application logo.
 - `templates` - HTML templates for the web pages.
 - `analyzer` - The core Django application handling business logic.
+
+## Used technologies  
+- [Bootstrap 5](https://getbootstrap.com/),  
+- [Bootstrap icons](https://icons.getbootstrap.com/),  
+- [Django](https://www.djangoproject.com/),  
+- ...
