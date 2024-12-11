@@ -7,34 +7,36 @@
     <title>Weather Analyzer v1.0</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
+
 <body>
-<header>
-    <img src="{% static 'images/weather_analizer.jpg' %}" alt="Weather Analyzer Logo">
-    <h1>Weather Analyzer v1.0</h1>
-</header>
+    <header>
+        <img src="{% static 'images/weather_analizer.jpg' %}" alt="Weather Analyzer Logo">
+        <h1>Weather Analyzer v1.0</h1>
+    </header>
 
-<main>
-    <div class="weather-banner">
-        <img src="{% static 'images/sun_icon.png' %}" alt="Sunny Icon">
-        <p><strong>Centrum prognoz pogodowych!</strong></p>
-    </div>
+    <main>
+        <div class="weather-banner">
+            <img src="{% static 'images/sun_icon.png' %}" alt="Sunny Icon">
+            <p><strong>Centrum prognoz pogodowych!</strong></p>
+        </div>
 
-    <ul class="link-list">
-        <li><a href="{% url 'analyzer:index' %}">Strona główna</a></li>
-        <li><a href="{% url 'analyzer:open_weather_map' %}">Open Weather Map</a></li>
-        <li><a href="{% url 'analyzer:weather_api' %}">Weather API</a></li>
-        <li><a href="{% url 'analyzer:python_weather' %}">Python Weather</a></li>
-        <li><a href="{% url 'analyzer:open-meteo' %}">Open Meteo</a></li>
-        <li><a href="{% url 'analyzer:weather-bit' %}">Weather Bit</a></li>
-        <li><a href="{% url 'analyzer:virtualcrossing' %}">Virtual Crossing</a></li>
-    </ul>
+        <ul class="link-list">
+            <li><a href="{% url 'analyzer:index' %}">Strona główna</a></li>
+            <li><a href="{% url 'analyzer:open_weather_map' %}">Open Weather Map</a></li>
+            <li><a href="{% url 'analyzer:weather_api' %}">Weather API</a></li>
+            <li><a href="{% url 'analyzer:python_weather' %}">Python Weather</a></li>
+            <li><a href="{% url 'analyzer:open-meteo' %}">Open Meteo</a></li>
+            <li><a href="{% url 'analyzer:weather-bit' %}">Weather Bit</a></li>
+            <li><a href="{% url 'analyzer:virtualcrossing' %}">Virtual Crossing</a></li>
+        </ul>
 
-    {% block content %}
-    {% endblock content %}
-</main>
+        {% block content %}
+        {% endblock content %}
 
-<footer>
-    <p>&copy; 2025 Weather Analyzer v1.0 - Wszystkie prawa zastrzeżone.</p>
-</footer>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Weather Analyzer v1.0 - Wszystkie prawa zastrzeżone.</p>
+    </footer>
 </body>
 </html>
