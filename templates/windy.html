@@ -4,7 +4,7 @@
 
 {% block content %}
 <h3>Welcome to Windy data!</h3>
-<table border="1" style="border: 2px; width: 80%"> <!-- border powinno ustawić się w CSS -->
+<table border="1" style="border: 2px; width: 80%" > <!-- border powinno ustawić się w CSS -->
   <tr>
     <th>Numer pomiaru</th>
     <th>time_from_timestamp</th>
@@ -19,11 +19,11 @@
     <tr>
       <td>{{ forloop.counter }}</td>
       <td>{{ t|date:'Y-m-d H:i' }}</td>
-      <td>{{ wind_u_surface|index:forloop.counter0 }} m/s</td>
-      <td>{{ dewpoint_surface|index:forloop.counter0 }} K</td>
-      <td>{{ pressure_surface|index:forloop.counter0 }} Pa</td>
-      <td>{{ rh_surface|index:forloop.counter0 }} %</td>
-      <td>{{ temperatura|index:forloop.counter0 }} °C</td>
+      <td>{{ wind_u_surface|index:forloop.counter0|floatformat:2}} m/s</td>
+      <td>{{ dewpoint_surface|index:forloop.counter0|floatformat:2 }} K</td>
+      <td>{{ pressure_surface|index:forloop.counter0|floatformat:2 }} Pa</td>
+      <td>{{ rh_surface|index:forloop.counter0|floatformat:2 }} %</td>
+      <td>{{ temperatura|index:forloop.counter0|floatformat:2 }} °C</td>
     </tr>
   {% endfor %}
 

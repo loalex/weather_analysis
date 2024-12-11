@@ -1,0 +1,87 @@
+
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #d0e7f9; /* Lekki niebieski odcień */
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: #0077be; /* Intensywniejszy niebieski pasek */
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header img {
+            width: 50px;
+            height: auto;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        main {
+            flex: 1; /* Rozciąganie zawartości na dostępnej wysokości */
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff; /* Białe tło dla treści */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            background-color: #0077be;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .weather-banner {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .weather-banner img {
+            width: 80px;
+        }
+
+        .link-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .link-list a {
+            text-decoration: none;
+            color: #0077be;
+            background-color: #e6f3ff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .link-list a:hover {
+            background-color: #0077be;
+            color: white;
+
+        }
+
+        td {
+        text-align:center;
+        }
