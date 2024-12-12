@@ -100,7 +100,7 @@ def fetch_windy_data(request):
                     "pressure_surface": data["pressure-surface"],
                     "rh_surface": data["rh-surface"],
                     "temperatura": temperatura,  # Dodajemy temperaturę do danych zwracanych do szablonu
-                    "query": query.capitalize(),
+                    "query": query,
                     "adres": getLoc.address
                 },
             )
