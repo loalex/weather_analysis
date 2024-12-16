@@ -116,14 +116,33 @@ def fetch_windy_data(request):
 
 def fetch_weatherapp_data(request):
     api_key = "0d1764dc7eace6612e7d9a5e1168371f"
-    city = "Gdynia"  # Docelowo wczytywane z formularza
-    url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={api_key}"
+    default_city = "Gdynia"  # Domyślna lokalizacja
+    geolocator = Nominatim(user_agent="weather_app")
 
+    # Pobranie lokalizacji od użytkownika z parametru GET
+    city = request.GET.get("localization_query", default_city)
+
+    # Geokodowanie, aby sprawdzić poprawność lokalizacji
+    getLoc = geolocator.geocode(city)
+    if not getLoc:
+        # Jeśli lokalizacja jest nieprawidłowa, ustawiamy domyślną
+        city = default_city
+        getLoc = geolocator.geocode(city)
+
+    # Pobranie współrzędnych geograficznych
+    latitude = getLoc.latitude
+    longitude = getLoc.longitude
+
+    # Tworzenie adresu URL do API OpenWeatherMap
+    url = f"http://api.openweathermap.org/data/2.5/forecast?lat={latitude}&lon={longitude}&appid={api_key}"
+
+    # Wysłanie żądania do API
     response = requests.get(url)
 
     if response.status_code == 200:
         data = response.json()
 
+        # Przetwarzanie danych prognozy
         forecast_data = []
         for entry in data["list"]:
             forecast_data.append(
@@ -143,6 +162,7 @@ def fetch_weatherapp_data(request):
                 }
             )
 
+        # Renderowanie strony z prognozą pogody
         return render(
             request,
             "openweathermap.html",
@@ -150,17 +170,23 @@ def fetch_weatherapp_data(request):
         )
 
     else:
-        print("Error fetching weather data")
-        return render(request, "error.html")
+        # Obsługa błędu API
+        return render(
+            request,
+            "openweathermap.html",
+            {"forecast_data": None, "city": city, "error": "Błąd pobierania danych z API"}
+        )
 
 
 def fetch_weatherapi_data(request):
-    # Ustawienie punktu
     api_key = "32ac4dbcfb684f52b9275344240311"
-    latitude = 54.31
-    longitude = 18.31
+
+    # Pobranie lokalizacji z formularza lub ustawienie domyślnej
+    query = request.GET.get("localization_query", "Gdynia")  # Domyślna lokalizacja: Gdynia
+
+    # Endpoint API z lokalizacją
     days = 3  # Maksymalna liczba dni dla darmowego planu
-    url = f"https://api.weatherapi.com/v1/forecast.json?key={api_key}&q={latitude},{longitude}&days={days}"
+    url = f"https://api.weatherapi.com/v1/forecast.json?key={api_key}&q={query}&days={days}"
 
     response = requests.get(url)
 
@@ -176,7 +202,7 @@ def fetch_weatherapi_data(request):
                     {
                         "probe": probe_number,
                         "time": hour["time"],
-                        "temp": hour["temp_c"],
+                        "temperature": hour["temp_c"],
                         "precipitation": hour["precip_mm"],
                         "humidity": hour["humidity"],
                         "condition": hour["condition"]["text"],
@@ -189,104 +215,160 @@ def fetch_weatherapi_data(request):
                 probe_number += 1  # Zwiększenie numeru próby
 
         return render(
-            request, "weatherapi.html", {"hourly_forecast_data": hourly_forecast_data}
+            request,
+            "weatherapi.html",
+            {
+                "forecast_data": hourly_forecast_data,
+                "city": data.get("location", {}).get("name", "Nieznane"),
+                "query": query,
+            },
         )
 
     else:
         return render(
-            request, "error.html", {"message": "Nie udało się pobrać prognozy pogody."}
+            request,
+            "error.html",
+            {
+                "message": "Nie udało się pobrać prognozy pogody. Sprawdź poprawność lokalizacji.",
+                "query": query,
+            },
         )
 
 
+from django.shortcuts import render
+import python_weather
+
 async def getweather(request):
+    # Pobierz lokalizację z formularza lub ustaw domyślną
+    query = request.GET.get("localization_query", "Gdynia")  # Domyślna lokalizacja: Gdynia
+
     # Klient do pobierania danych pogodowych
     async with python_weather.Client(unit=python_weather.IMPERIAL) as client:
-        # Pobierz prognozę pogody dla Gdyni
-        weather = await client.get("Gdynia")
+        try:
+            # Pobierz prognozę pogody dla podanej lokalizacji
+            weather = await client.get(query)
 
-        # Zmienna przechowująca dane
-        forecast_data = []
+            # Zmienna przechowująca dane
+            forecast_data = []
 
-        # Przetwarzanie prognozy dziennej
-        for daily in weather:
-            daily_data = {
-                "date": daily.date,
-                "temperature": round(
-                    (daily.temperature - 32) * 5 / 9, 2
-                ),  # Fahrenheit -> Celsius
-                "hourly": [],
-            }
-
-            # Przetwarzanie prognozy godzinowej
-            for hourly in daily:
-                hourly_data = {
-                    "time": hourly.time,
+            # Przetwarzanie prognozy dziennej
+            for daily in weather:
+                daily_data = {
+                    "date": daily.date,
                     "temperature": round(
-                        (hourly.temperature - 32) * 5 / 9, 2
+                        (daily.temperature - 32) * 5 / 9, 2
                     ),  # Fahrenheit -> Celsius
-                    "wind_speed": getattr(
-                        hourly, "wind_speed", "N/A"
-                    ),  # Jeśli brak danych
-                    "pressure": (
-                        round(getattr(hourly, "pressure", 0) * 33.8639, 2)
-                        if hasattr(hourly, "pressure")
-                        else "N/A"
-                    ),  # inHg -> hPa
-                    "humidity": getattr(hourly, "humidity", "N/A"),  # Wilgotność
-                    "precipitation": getattr(hourly, "precipitation", "N/A"),  # Opady
-                    "description": hourly.description,
+                    "hourly": [],
                 }
-                daily_data["hourly"].append(hourly_data)
 
-            forecast_data.append(daily_data)
+                # Przetwarzanie prognozy godzinowej
+                for hourly in daily:
+                    hourly_data = {
+                        "time": hourly.time,
+                        "temperature": round(
+                            (hourly.temperature - 32) * 5 / 9, 2
+                        ),  # Fahrenheit -> Celsius
+                        "wind_speed": getattr(
+                            hourly, "wind_speed", "N/A"
+                        ),  # Jeśli brak danych
+                        "pressure": (
+                            round(getattr(hourly, "pressure", 0) * 33.8639, 2)
+                            if hasattr(hourly, "pressure")
+                            else "N/A"
+                        ),  # inHg -> hPa
+                        "humidity": getattr(hourly, "humidity", "N/A"),  # Wilgotność
+                        "precipitation": getattr(hourly, "precipitation", "N/A"),  # Opady
+                        "description": hourly.description,
+                    }
+                    daily_data["hourly"].append(hourly_data)
 
-    return render(request, "python-weather.html", {"forecast_data": forecast_data})
+                forecast_data.append(daily_data)
+
+            # Renderowanie szablonu z prognozą
+            return render(
+                request,
+                "python-weather.html",
+                {
+                    "forecast_data": forecast_data,
+                    "query": query,
+                },
+            )
+
+        except Exception as e:
+            # Obsługa błędu (np. niepoprawna lokalizacja)
+            return render(
+                request,
+                "error.html",
+                {
+                    "message": f"Nie udało się pobrać prognozy pogody dla lokalizacji: {query}. Spróbuj ponownie.",
+                    "query": query,
+                },
+            )
+
 
 
 async def fetch_open_meteo_data(request):
-    """Asynchronous function to fetch weather forecast data using Open-Meteo API."""
-    async with OpenMeteo() as open_meteo:
-        forecast = await open_meteo.forecast(
-            latitude=54.31,
-            longitude=18.31,
-            current_weather=True,
-            daily=[
-                DailyParameters.SUNRISE,
-                DailyParameters.SUNSET,
-            ],
-            hourly=[
-                HourlyParameters.TEMPERATURE_2M,
-                HourlyParameters.RELATIVE_HUMIDITY_2M,
-                HourlyParameters.PRECIPITATION,
-                HourlyParameters.PRESSURE_MSL,
-                HourlyParameters.CLOUD_COVER,
-                HourlyParameters.WIND_SPEED_10M,
-                HourlyParameters.WIND_DIRECTION_10M,
-            ],
+    # Odczytujemy lokalizację z formularza, jeśli użytkownik ją podał
+    query = request.GET.get("localization_query", "Gdynia")  # Domyślnie ustawiamy Gdynię
+
+    # W tym miejscu możesz dodać logikę do przetwarzania lokalizacji na współrzędne
+    # Dla uproszczenia zakładamy współrzędne Gdyni (54.31, 18.31)
+    latitude = 54.31
+    longitude = 18.31
+
+    # Jeśli masz API do geokodowania, tutaj możesz dodać kod, aby uzyskać współrzędne na podstawie nazwy miasta
+
+    try:
+        # Klient do pobierania danych pogodowych
+        async with OpenMeteo() as open_meteo:
+            forecast = await open_meteo.forecast(
+                latitude=latitude,
+                longitude=longitude,
+                current_weather=True,
+                daily=[
+                    DailyParameters.SUNRISE,
+                    DailyParameters.SUNSET,
+                ],
+                hourly=[
+                    HourlyParameters.TEMPERATURE_2M,
+                    HourlyParameters.RELATIVE_HUMIDITY_2M,
+                    HourlyParameters.PRECIPITATION,
+                    HourlyParameters.PRESSURE_MSL,
+                    HourlyParameters.CLOUD_COVER,
+                    HourlyParameters.WIND_SPEED_10M,
+                    HourlyParameters.WIND_DIRECTION_10M,
+                ],
+            )
+
+        # Przygotowanie danych do tabeli (co 3 godziny)
+        hourly_data = [
+            {
+                "time": forecast.hourly.time[i],
+                "temperature": forecast.hourly.temperature_2m[i],
+                "wind_speed": forecast.hourly.wind_speed_10m[i],
+                "precipitation": forecast.hourly.precipitation[i],
+                "pressure": forecast.hourly.pressure_msl[i],
+                "humidity": forecast.hourly.relative_humidity_2m[i],
+                "cloud_cover": forecast.hourly.cloud_cover[i],
+                "wind_direction": forecast.hourly.wind_direction_10m[i],
+            }
+            for i in range(0, len(forecast.hourly.time), 3)  # Pobieranie danych co 3 godziny
+        ]
+
+        # Przekazanie danych do szablonu
+        return render(
+            request,
+            "open_meteo.html",
+            {"hourly_data": hourly_data, "query": query}
         )
 
-    # Debugowanie danych (opcjonalne, pomocne podczas sprawdzania)
-    # print("Forecast Data:", forecast)
-
-    # Przygotowanie danych do tabeli (co 3 godziny)
-    hourly_data = [
-        {
-            "time": forecast.hourly.time[i],
-            "temperature": forecast.hourly.temperature_2m[i],
-            "wind_speed": forecast.hourly.wind_speed_10m[i],
-            "precipitation": forecast.hourly.precipitation[i],
-            "pressure": forecast.hourly.pressure_msl[i],
-            "humidity": forecast.hourly.relative_humidity_2m[i],
-            "cloud_cover": forecast.hourly.cloud_cover[i],
-            "wind_direction": forecast.hourly.wind_direction_10m[i],
-        }
-        for i in range(
-            0, len(forecast.hourly.time), 3
-        )  # Pobieranie danych co 3 godziny
-    ]
-
-    # Przekazanie danych do szablonu
-    return render(request, "open_meteo.html", {"hourly_data": hourly_data})
+    except Exception as e:
+        # Obsługa błędów, np. niepoprawne dane lub połączenie
+        return render(
+            request,
+            "error.html",
+            {"message": f"Nie udało się pobrać prognozy pogody dla lokalizacji: {query}. Spróbuj ponownie.", "query": query}
+        )
 
 
 def fetch_weatherbit_data(request):
