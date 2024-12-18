@@ -11,6 +11,7 @@ import python_weather
 import requests
 from weatherapi import WeatherPoint
 from weatherbit.api import Api
+from urllib.parse import quote
 
 loc = Nominatim(user_agent="Geopy Library")
 
@@ -208,9 +209,6 @@ def fetch_weatherapi_data(request):
         )
 
 
-from django.shortcuts import render
-import python_weather
-
 async def getweather(request):
     query = request.GET.get("localization_query", "Gdynia")
 
@@ -350,85 +348,45 @@ async def fetch_open_meteo_data(request):
 
 
 def fetch_weatherbit_data(request):
-    API_KEY = "e7f4bdfe9101470982721ecc9e87f4f3"
+    api_key = "e7f4bdfe9101470982721ecc9e87f4f3"
+    lat = 54.31
+    lon = 18.31
 
-    geolocator = Nominatim(user_agent="weather_app")
-
-    query = request.GET.get("localization_query", "Gdynia")
-    print(f"Zapytanie użytkownika: {query}")
-
-    getLoc = geolocator.geocode(query)
-
-    if getLoc:
-        print(f"Znaleziono lokalizację: {getLoc.address}")
-        latitude = getLoc.latitude
-        longitude = getLoc.longitude
-        adres = getLoc.address
-    else:
-        print("Nie znaleziono lokalizacji. Ustawiam domyślną: Gdynia")
-        query = "Gdynia"
-        getLoc = geolocator.geocode(query)
-        latitude = getLoc.latitude
-        longitude = getLoc.longitude
-        adres = getLoc.address
-
-    print(f"Latitude: {latitude}, Longitude: {longitude}, Adres: {adres}")
+    api = Api(api_key)
+    api.set_granularity("daily")
 
     try:
-        api = Api(API_KEY)
-        api.set_granularity("daily")
-        forecast = api.get_forecast(lat=latitude, lon=longitude)
+        # Można użyć dowolnej z poniższych opcji do pobrania prognozy
+        forecast = api.get_forecast(lat=lat, lon=lon)
+        # forecast = api.get_forecast(city="Raleigh,NC")
+        # forecast = api.get_forecast(city="Raleigh", state="North Carolina", country="US")
 
         series = forecast.get_series(
             ["datetime", "temp", "precip", "pres", "clouds", "wind_spd", "uv"]
         )
-
-        time_from_timestamp = []
-        temperatura = []
-        wind_speed = []
-        pressure = []
-
-        for item in series:
-            time_from_timestamp.append(datetime.strptime(item["datetime"], "%Y-%m-%d"))
-
-            temperatura.append(item["temp"])
-            wind_speed.append(item["wind_spd"])
-            pressure.append(item["pres"])
-
-        print("Pomyślnie przetworzono dane z Weatherbit")
-
-        return render(
-            request,
-            "weatherbit.html",
-            {
-                "time_from_timestamp": time_from_timestamp,
-                "temperatura": temperatura,
-                "wind_speed": wind_speed,
-                "pressure": pressure,
-                "query": query,
-                "adres": adres,
-            },
-        )
+        # print(series)
+        return render(request, "weatherbit.html", {"forecast_data": series})
 
     except Exception as e:
-        print(f"Błąd podczas pobierania danych z Weatherbit: {e}")
-        return render(
-            request,
-            "error.html",
-            {"message": "Coś poszło nie tak, spróbuj ponownie.", "query": query},
-        )
-
+        print(f"Error fetching Weatherbit data: {e}")
+        return render(request, "error.html")
 
 
 def fetch_virtualcrossing_data(request):
     BaseURL = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
     ApiKey = "PZ7J682SJRRNLFDVJ3F4GRGXL"
     UnitGroup = "metric"
-    Location = "Gdynia"
+
+    # Pobieramy nazwę miejscowości z zapytania
+    Location = request.GET.get("localization_query", "Gdynia")
+
+    # Kodujemy nazwę miejscowości
+    Location = quote(Location)  # Teraz spacje zamienią się na %20
+
     StartDate = ""
     EndDate = ""
     ContentType = "json"
-    Include = "days"
+    Include = "hours"
 
     ApiQuery = f"{BaseURL}{Location}"
     if StartDate:
@@ -441,15 +399,41 @@ def fetch_virtualcrossing_data(request):
         response = urllib.request.urlopen(ApiQuery)
         data = response.read().decode("utf-8")
         forecast_data = json.loads(data)
-        # print(forecast_data)
-        return render(request, "virtualcrossing.html", {"forecast_data": forecast_data})
+
+        # Przykład przetwarzania danych (możesz dostosować według potrzeb)
+        hourly_forecast_data = []
+        for day in forecast_data.get("days", []):
+            for hour in day.get("hours", []):
+                hourly_forecast_data.append(
+                    {
+                        "time": hour["datetime"],
+                        "temperature": hour["temp"],
+                        "precipitation": hour.get("precip", 0),
+                        "humidity": hour.get("humidity", 0),
+                        "condition": hour.get("conditions", "Brak danych"),
+                        "wind_speed": hour.get("windspeed", 0),
+                        "wind_direction": hour.get("winddir", "Brak danych"),
+                        "pressure": hour.get("pressure", 0),
+                        "uv": hour.get("uvindex", "Brak danych"),
+                    }
+                )
+
+        return render(
+            request,
+            "virtualcrossing.html",
+            {
+                "forecast_data": hourly_forecast_data,
+                "city": forecast_data.get("resolvedAddress", "Nieznane"),
+                "query": request.GET.get("localization_query", "Gdynia"),
+            },
+        )
 
     except urllib.error.HTTPError as e:
         print(f"HTTP Error: {e.code} {e.read().decode()}")
-        return render(request, "error.html")
+        return render(request, "error.html", {"message": "Błąd po stronie API."})
     except urllib.error.URLError as e:
         print(f"URL Error: {e.reason}")
-        return render(request, "error.html")
+        return render(request, "error.html", {"message": "Nie można połączyć się z API."})
 
 
 def about(request):

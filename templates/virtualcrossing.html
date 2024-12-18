@@ -1,38 +1,68 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<h3>Prognoza Pogody dla Gdyni</h3>
 
-{% if forecast_data.days %}
-<table border="1" style="border-collapse: collapse; width: 100%;">
-    <thead>
-        <tr>
-            <th>Numer Pomiaru</th>
-            <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Data&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-            <th>Temperatura (°C)</th>
-            <th>Opady (mm)</th>
-            <th>Prędkość Wiatru (km/h)</th>
-            <th>Indeks UV</th>
-            <th>Opis</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for day in forecast_data.days %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{{ day.datetime }}</td>
-            <td>{{ day.temp }}</td>
-            <td>{{ day.precip }}</td>
-            <td>{{ day.windspeed }}</td>
-            <td>{{ day.uvindex }}</td>
-            <td>{{ day.description }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>Brak danych do wyświetlenia.</p>
-{% endif %}
+    <h3 class="text-center mb-2 mt-2">Dane dla m. <u>{{ city|default:"Nieznane" }}</u></h3>
 
-<a href="{% url 'analyzer:index' %}">Powrót do początku</a>
+    <form action="{% url 'analyzer:virtualcrossing' %}" class="w-75 srodkowy mb-4">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="localization_query">Lokalizacja</label>
+                <input
+                    class="form-control mt-2"
+                    id="query"
+                    name="localization_query"
+                    type="text"
+                    placeholder="Wpisz miejsce ..."
+                    required
+                >
+            </div>
+        </div>
+        <div class="mt-3 mb-3 text-center">
+            <button type="submit" class="btn btn-primary">Pobierz dane z VirtualCrossing</button>
+        </div>
+    </form>
+
+    {% if forecast_data %}
+    <table class="table table-striped table-bordered border-primary table-hover w-75 srodkowy">
+        <thead>
+            <tr>
+                <th>Nr</th>
+                <th>Data i czas</th>
+                <th>Temperatura (°C)</th>
+                <th>Opady (mm)</th>
+                <th>Wilgotność (%)</th>
+                <th>Opis</th>
+                <th>Prędkość wiatru (km/h)</th>
+                <th>Kierunek wiatru</th>
+                <th>Ciśnienie (hPa)</th>
+                <th>UV</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in forecast_data %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ entry.time }}</td>
+                <td>{{ entry.temperature }}</td>
+                <td>{{ entry.precipitation }}</td>
+                <td>{{ entry.humidity }}</td>
+                <td>{{ entry.condition }}</td>
+                <td>{{ entry.wind_speed }}</td>
+                <td>{{ entry.wind_direction }}</td>
+                <td>{{ entry.pressure }}</td>
+                <td>{{ entry.uv }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-center mt-4">Wprowadź lokalizację, aby wyświetlić prognozę pogody.</p>
+    {% endif %}
+
+    <div class="text-center">
+        <a href="{% url 'analyzer:index' %}" class="btn btn-secondary srodkowy mb-3" role="button" aria-disabled="true">Początek</a>
+    </div>
+
 {% endblock content %}
