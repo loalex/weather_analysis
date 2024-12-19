@@ -29,7 +29,8 @@
         <thead>
             <tr>
                 <th>Nr</th>
-                <th>Data i czas</th>
+                <th>Data</th>
+                <th>Godzina</th>
                 <th>Temperatura (°C)</th>
                 <th>Opady (mm)</th>
                 <th>Wilgotność (%)</th>
@@ -44,7 +45,8 @@
             {% for entry in forecast_data %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ entry.time }}</td>
+                <td>{{ entry.date }}</td>
+                <td>{{ entry.time|slice:"0:5" }}</td>
                 <td>{{ entry.temperature }}</td>
                 <td>{{ entry.precipitation }}</td>
                 <td>{{ entry.humidity }}</td>

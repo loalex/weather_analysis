@@ -1,10 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 import math
 import urllib
 
 from django.shortcuts import render
-from django.core.cache import cache
 from geopy.geocoders import Nominatim
 from open_meteo import OpenMeteo
 from open_meteo.models import DailyParameters, HourlyParameters
@@ -13,13 +12,16 @@ import requests
 from weatherapi import WeatherPoint
 from weatherbit.api import Api
 from urllib.parse import quote
+from collections import defaultdict
+from geopy.geocoders import Nominatim
+from datetime import datetime
+from dateutil.parser import parse
 
 loc = Nominatim(user_agent="Geopy Library")
 
 
 def index(request):
     return render(request, "index.html")
-
 
 def fetch_windy_data(request):
     API_KEY = "tvt0g6AqPDQ5tYN2e58BAVvAoRrjAaH3"
@@ -94,7 +96,6 @@ def fetch_windy_data(request):
         else:
             # print(response.json())
             print(f"Błąd podczas pobierania danych: {response.status_code}")
-            # print(f"Treść odpowiedzi: {response.text}")
             return None
     except requests.RequestException as e:
         print(f"Wystąpił błąd sieci: {e}")
@@ -420,7 +421,7 @@ def fetch_virtualcrossing_data(request):
         for day in forecast_data.get("days", []):
             for hour in day.get("hours", []):
                 hourly_forecast_data.append(
-                    {
+                    {   "date": day["datetime"],
                         "time": hour["datetime"],
                         "temperature": hour["temp"],
                         "precipitation": hour.get("precip", 0),
@@ -450,6 +451,124 @@ def fetch_virtualcrossing_data(request):
         print(f"URL Error: {e.reason}")
         return render(request, "error.html", {"message": "Nie można połączyć się z API."})
 
+
+async def compare_temperatures(request):
+    city = request.GET.get("localization_query", "Gdynia")
+    geolocator = Nominatim(user_agent="weather_comparison_app")
+    location = geolocator.geocode(city)
+
+    if not location:
+        return render(request, "error.html", {"message": "Nie znaleziono lokalizacji."})
+
+    latitude, longitude = location.latitude, location.longitude
+
+    windy_api_key = "tvt0g6AqPDQ5tYN2e58BAVvAoRrjAaH3"
+    windy_url = "https://api.windy.com/api/point-forecast/v2"
+    windy_payload = {
+        "lat": latitude,
+        "lon": longitude,
+        "model": "gfs",
+        "parameters": ["dewpoint", "rh"],
+        "levels": ["surface"],
+        "key": windy_api_key,
+    }
+    windy_headers = {"Content-Type": "application/json"}
+    windy_temperatures = []
+    windy_times = []
+
+    try:
+        windy_response = requests.post(windy_url, headers=windy_headers, json=windy_payload)
+        if windy_response.status_code == 200:
+            windy_data = windy_response.json()
+            for timestamp, dewpoint, rh in zip(
+                    windy_data["ts"], windy_data["dewpoint-surface"], windy_data["rh-surface"]
+            ):
+                time = datetime.fromtimestamp(timestamp / 1000).strftime("%Y-%m-%d %H:%M:%S")
+                dewpoint_celsius = dewpoint - 273.15
+                a, b = 17.625, 243.04
+                alpha = math.log(rh / 100) + (a * dewpoint_celsius) / (b + dewpoint_celsius)
+                temperature = (b * alpha) / (a - alpha)
+                windy_times.append(time)
+                windy_temperatures.append(round(temperature, 2))
+        else:
+            print(f"Błąd Windy API: {windy_response.status_code}")
+    except Exception as e:
+        print(f"Błąd połączenia z Windy API: {e}")
+
+    weather_api_key = "32ac4dbcfb684f52b9275344240311"
+    weather_url = f"https://api.weatherapi.com/v1/forecast.json?key={weather_api_key}&q={city}&days=3"
+    weather_temperatures = []
+    weather_times = []
+
+    try:
+        weather_response = requests.get(weather_url)
+        if weather_response.status_code == 200:
+            weather_data = weather_response.json()
+            for day in weather_data["forecast"]["forecastday"]:
+                for hour in day["hour"]:
+                    weather_times.append(hour["time"])
+                    weather_temperatures.append(hour["temp_c"])
+        else:
+            print(f"Błąd WeatherAPI: {weather_response.status_code}")
+    except Exception as e:
+        print(f"Błąd połączenia z WeatherAPI: {e}")
+
+    python_weather_temperatures = []
+    python_weather_times = []
+
+    try:
+        async with python_weather.Client(unit=python_weather.IMPERIAL) as client:
+            weather = await client.get(city)
+            for daily in weather:
+                for hourly in daily:
+                    time = f"{daily.date} {hourly.time}"
+                    temp_celsius = round((hourly.temperature - 32) * 5 / 9, 2)  # Fahrenheit -> Celsius
+                    python_weather_times.append(time)
+                    python_weather_temperatures.append(temp_celsius)
+    except Exception as e:
+        print(f"Błąd Python-Weather: {e}")
+
+    open_meteo_temperatures = []
+    open_meteo_times = []
+
+    try:
+        async with OpenMeteo() as open_meteo:
+            forecast = await open_meteo.forecast(
+                latitude=latitude,
+                longitude=longitude,
+                hourly=["temperature_2m"]
+            )
+            open_meteo_times = forecast.hourly.time
+            open_meteo_temperatures = forecast.hourly.temperature_2m
+    except Exception as e:
+        print(f"Błąd OpenMeteo: {e}")
+
+    comparison_data = []
+    for w_time, w_temp in zip(windy_times, windy_temperatures):
+        weather_temp = next((t for t, t_time in zip(weather_temperatures, weather_times) if parse(t_time) == parse(w_time)), None)
+        python_temp = next((t for t, t_time in zip(python_weather_temperatures, python_weather_times) if parse(t_time) == parse(w_time)), None)
+        open_meteo_temp = next(
+            (
+                t
+                for t, t_time in zip(open_meteo_temperatures, open_meteo_times)
+                if (t_time if isinstance(t_time, datetime) else parse(t_time)) ==
+                   (w_time if isinstance(w_time, datetime) else parse(w_time))
+            ),
+            None,
+        )
+
+        comparison_data.append({
+            "time": w_time,
+            "windy_temp": w_temp,
+            "weather_temp": weather_temp,
+            "python_temp": python_temp,
+            "open_meteo_temp": open_meteo_temp,
+        })
+
+    return render(request, "compare_temperatures.html", {
+        "city": city,
+        "comparison_data": comparison_data,
+    })
 
 def about(request):
     return render(request, "about.html")

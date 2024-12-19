@@ -1,15 +1,50 @@
 {% extends 'base.html' %}
 {% load static %}
 
-
 {% block content %}
-    
+
     <h2>
-        Może kilka słów o apce???
+        Weather Analizer
     </h2>
-    
+
     <div class="text-center mt-4 mb-4">
-      <img src="{% static 'images/weather_analysis.jpg' %}" class="rounded" alt="...">
+      <img src="{% static 'images/weather_analysis.jpg' %}" class="rounded" alt="Analiza pogody">
     </div>
-    
-{%  endblock content %}
+
+    <p class="fs-5">
+        Aplikacja pogodowa została stworzona w ramach pracy inżynierskiej i służy do kompleksowej analizy danych pogodowych. Dzięki integracji z 7 różnymi API pogodowymi (m.in. Weatherbit, OpenWeather, WeatherAPI), użytkownik otrzymuje dostęp do szerokiego zakresu danych, takich jak temperatura, opady, wilgotność, prędkość i kierunek wiatru, zachmurzenie, UV oraz wiele innych parametrów.
+    </p>
+
+    <p class="fs-5">
+        Celem aplikacji jest nie tylko umożliwienie łatwego dostępu do bieżących warunków pogodowych, ale także zapewnienie wiarygodnych prognoz na kolejne dni. Dzięki nowoczesnemu interfejsowi użytkownika oraz możliwości podawania lokalizacji, aplikacja dostarcza precyzyjne dane dopasowane do potrzeb użytkownika.
+    </p>
+
+    <p class="fs-5">
+        Ważnym elementem aplikacji jest optymalizacja zapytań do API – dane są pobierane z wybranego API, z określoną częstotliwością zależną od danego API, co zwiększa wydajność i zmniejsza zużycie zasobów. Dodatkowo aplikacja pozwala na wizualizację danych w przejrzysty sposób, dzięki czemu użytkownik może szybko zinterpretować dostarczone informacje.
+    </p>
+
+    <p class="fs-5">
+        Aplikacja została zaprojektowana z myślą o praktycznych zastosowaniach, takich jak planowanie podróży, organizacja wydarzeń na świeżym powietrzu, a także codzienne korzystanie przez osoby zainteresowane pogodą. Dzięki elastyczności i integracji z wieloma źródłami danych, aplikacja jest wartościowym narzędziem dla każdego użytkownika.
+    </p>
+
+    <h3>Wykorzystane API:</h3>
+    <ul>
+        <li>Weatherbit</li>
+        <li>OpenWeatherMap</li>
+        <li>WeatherAPI</li>
+        <li>Windy</li>
+        <li>Python Weather</li>
+        <li>Open Meteo</li>
+        <li>Virtual Crossing</li>
+    </ul>
+
+    <h3>Technologie użyte w aplikacji:</h3>
+    <p>Aplikacja została zbudowana w oparciu o framework Django oraz języki Python, HTML, CSS. Do zarządzania danymi pogodowymi wykorzystano zaawansowane biblioteki API oraz mechanizmy cache'owania w celu optymalizacji działania aplikacji.</p>
+
+    <h3>O autorze:</h3>
+    <div class="text-center">
+        <img src="{% static 'images/IMG-3041.jpg' %}" class="img-thumbnail" alt="Aleksander Łopaciński" style="width: 200px;">
+        <p class="fs-5 mt-3">Aplikacja została stworzona przez Aleksandra Łopacińskiego w ramach pracy inżynierskiej na kierunku Informatyka.</p>
+    </div>
+
+{% endblock content %}

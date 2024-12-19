@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Porównanie temperatur</title>
+</head>
+<body>
+    <h1>Porównanie temperatur dla {{ city }}</h1>
+
+    {% if comparison_data %}
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Godzina</th>
+                    <th>Temperatura (Windy)</th>
+                    <th>Temperatura (WeatherAPI)</th>
+                    <th>Temperatura (Python-Weather)</th>
+                    <th>Temperatura (OpenMeteo)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in comparison_data %}
+                    <tr>
+                        <td>{{ entry.time }}</td>
+                        <td>{{ entry.windy_temp }} °C</td>
+                        <td>{{ entry.weather_temp|default_if_none:"Brak danych" }} °C</td>
+                        <td>{{ entry.python_temp|default_if_none:"Brak danych" }} °C</td>
+                        <td>{{ entry.open_meteo_temp|default_if_none:"Brak danych" }} °C</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Brak danych do porównania.</p>
+    {% endif %}
+
+    <div class="text-center">
+        <a href="{% url 'analyzer:index' %}" class="btn btn-secondary srodkowy mb-3" role="button" aria-disabled="true">Początek</a>
+    </div>
+</body>
+</html>
