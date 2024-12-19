@@ -1,10 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
 import math
 import urllib
 
 from django.shortcuts import render
-from django.core.cache import cache
 from geopy.geocoders import Nominatim
 from open_meteo import OpenMeteo
 from open_meteo.models import DailyParameters, HourlyParameters
@@ -94,7 +93,6 @@ def fetch_windy_data(request):
         else:
             # print(response.json())
             print(f"Błąd podczas pobierania danych: {response.status_code}")
-            # print(f"Treść odpowiedzi: {response.text}")
             return None
     except requests.RequestException as e:
         print(f"Wystąpił błąd sieci: {e}")
@@ -420,7 +418,7 @@ def fetch_virtualcrossing_data(request):
         for day in forecast_data.get("days", []):
             for hour in day.get("hours", []):
                 hourly_forecast_data.append(
-                    {
+                    {   "date": day["datetime"],
                         "time": hour["datetime"],
                         "temperature": hour["temp"],
                         "precipitation": hour.get("precip", 0),
