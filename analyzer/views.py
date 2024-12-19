@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import math
 import urllib
 
 from django.shortcuts import render
+from django.core.cache import cache
 from geopy.geocoders import Nominatim
 from open_meteo import OpenMeteo
 from open_meteo.models import DailyParameters, HourlyParameters
@@ -349,24 +350,41 @@ async def fetch_open_meteo_data(request):
 
 def fetch_weatherbit_data(request):
     api_key = "e7f4bdfe9101470982721ecc9e87f4f3"
-    lat = 54.31
-    lon = 18.31
+    geolocator = Nominatim(user_agent="weatherbit_app")
+
+    query = request.GET.get("localization_query", "Gdynia")  # Domyślnie Gdynia
+    getLoc = geolocator.geocode(query)
+
+    if getLoc:
+        lat = getLoc.latitude
+        lon = getLoc.longitude
+        address = getLoc.address
+    else:
+        query = "Gdynia"
+        getLoc = geolocator.geocode(query)
+        lat = getLoc.latitude
+        lon = getLoc.longitude
+        address = getLoc.address
 
     api = Api(api_key)
     api.set_granularity("daily")
 
     try:
-        # Można użyć dowolnej z poniższych opcji do pobrania prognozy
         forecast = api.get_forecast(lat=lat, lon=lon)
-        # forecast = api.get_forecast(city="Raleigh,NC")
-        # forecast = api.get_forecast(city="Raleigh", state="North Carolina", country="US")
 
         series = forecast.get_series(
             ["datetime", "temp", "precip", "pres", "clouds", "wind_spd", "uv"]
         )
-        # print(series)
-        return render(request, "weatherbit.html", {"forecast_data": series})
 
+        return render(
+            request,
+            "weatherbit.html",
+            {
+                "forecast_data": series,
+                "query": query,
+                "address": address,
+            },
+        )
     except Exception as e:
         print(f"Error fetching Weatherbit data: {e}")
         return render(request, "error.html")
@@ -377,10 +395,8 @@ def fetch_virtualcrossing_data(request):
     ApiKey = "PZ7J682SJRRNLFDVJ3F4GRGXL"
     UnitGroup = "metric"
 
-    # Pobieramy nazwę miejscowości z zapytania
     Location = request.GET.get("localization_query", "Gdynia")
 
-    # Kodujemy nazwę miejscowości
     Location = quote(Location)  # Teraz spacje zamienią się na %20
 
     StartDate = ""
@@ -400,7 +416,6 @@ def fetch_virtualcrossing_data(request):
         data = response.read().decode("utf-8")
         forecast_data = json.loads(data)
 
-        # Przykład przetwarzania danych (możesz dostosować według potrzeb)
         hourly_forecast_data = []
         for day in forecast_data.get("days", []):
             for hour in day.get("hours", []):
