@@ -465,7 +465,6 @@ async def compare_temperatures(request):
     query = request.GET.get("localization_query", "Gdynia")
     comparison_data = []
 
-    # Pobieranie danych z oryginalnych źródeł (synchroniczne)
     try:
         # Windy
         API_KEY = "tvt0g6AqPDQ5tYN2e58BAVvAoRrjAaH3"
