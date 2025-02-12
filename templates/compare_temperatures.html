@@ -1,42 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Porównanie temperatur</title>
-</head>
-<body>
-    <h1>Porównanie temperatur dla {{ city }}</h1>
+{% extends 'base.html' %}
 
-    {% if comparison_data %}
-        <table border="1">
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">Porównanie temperatur z różnych źródeł</h1>
+
+    <form method="GET" class="mb-8">
+        <div class="flex gap-4">
+            <input type="text" 
+                   name="localization_query" 
+                   value="{{ query }}" 
+                   placeholder="Wpisz nazwę miejscowości"
+                   class="px-4 py-2 border rounded-lg flex-grow">
+            <button type="submit" 
+                    class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                Sprawdź
+            </button>
+        </div>
+    </form>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border rounded-lg">
             <thead>
-                <tr>
-                    <th>Godzina</th>
-                    <th>Temperatura (Windy)</th>
-                    <th>Temperatura (WeatherAPI)</th>
-                    <th>Temperatura (Python-Weather)</th>
-                    <th>Temperatura (OpenMeteo)</th>
+                <tr class="bg-gray-100">
+                    <th class="px-6 py-3 border-b text-left">Data i godzina</th>
+                    <th class="px-6 py-3 border-b text-left">Windy</th>
+                    <th class="px-6 py-3 border-b text-left">OpenWeatherMap</th>
+                    <th class="px-6 py-3 border-b text-left">WeatherAPI</th>
+                    <th class="px-6 py-3 border-b text-left">Python Weather</th>
+                    <th class="px-6 py-3 border-b text-left">Open-Meteo</th>
+                    <th class="px-6 py-3 border-b text-left">Visual Crossing</th>
                 </tr>
             </thead>
             <tbody>
-                {% for entry in comparison_data %}
-                    <tr>
-                        <td>{{ entry.time }}</td>
-                        <td>{{ entry.windy_temp }} °C</td>
-                        <td>{{ entry.weather_temp|default_if_none:"Brak danych" }} °C</td>
-                        <td>{{ entry.python_temp|default_if_none:"Brak danych" }} °C</td>
-                        <td>{{ entry.open_meteo_temp|default_if_none:"Brak danych" }} °C</td>
-                    </tr>
+                {% for data in comparison_data %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 border-b">{{ data.hour }}</td>
+                    <td class="px-6 py-4 border-b">
+                        {% if data.windy_temp is not None %}
+                            {{ data.windy_temp }}°C
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 border-b">
+                        {% if data.openweather_temp is not None %}
+                            {{ data.openweather_temp }}°C
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 border-b">
+                        {% if data.weatherapi_temp is not None %}
+                            {{ data.weatherapi_temp }}°C
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 border-b">
+                        {% if data.python_weather_temp is not None %}
+                            {{ data.python_weather_temp }}°C
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 border-b">
+                        {% if data.open_meteo_temp is not None %}
+                            {{ data.open_meteo_temp }}°C
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td class="px-6 py-4 border-b">
+                        {% if data.virtualcrossing_temp is not None %}
+                            {{ data.virtualcrossing_temp }}°C
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
-    {% else %}
-        <p>Brak danych do porównania.</p>
-    {% endif %}
-
-    <div class="text-center">
-        <a href="{% url 'analyzer:index' %}" class="btn btn-secondary srodkowy mb-3" role="button" aria-disabled="true">Początek</a>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

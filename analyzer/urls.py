@@ -16,5 +16,5 @@ urlpatterns = [
     path("virtualcrossing/", fetch_virtualcrossing_data, name="virtualcrossing"),
     path("open-meteo/", fetch_open_meteo_data, name="open-meteo"),
     path("about/", about, name="about"),
-    path('compare_temperatures/', compare_temperatures, name='compare_temperatures')
+    path('compare_temperatures/', compare_temperatures, name='compare_temperatures'),
 ]
