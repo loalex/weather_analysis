@@ -12,66 +12,65 @@
                    placeholder="Wpisz nazwę miejscowości"
                    class="px-4 py-2 border rounded-lg flex-grow">
             <button type="submit" 
-                    class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    class="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 shadow-md">
                 Sprawdź
             </button>
         </div>
     </form>
 
     <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border rounded-lg">
+        <table class="min-w-full bg-white border border-gray-300 rounded-lg">
             <thead>
-                <tr class="bg-gray-100">
-                    <th class="px-6 py-3 border-b text-left">Data i godzina</th>
-                    <th class="px-6 py-3 border-b text-left">Windy</th>
-                    <th class="px-6 py-3 border-b text-left">OpenWeatherMap</th>
-                    <th class="px-6 py-3 border-b text-left">WeatherAPI</th>
-                    <th class="px-6 py-3 border-b text-left">Python Weather</th>
-                    <th class="px-6 py-3 border-b text-left">Open-Meteo</th>
-                    <th class="px-6 py-3 border-b text-left">Visual Crossing</th>
+                <tr class="bg-gray-200 border-b border-gray-400">
+                    <th class="px-6 py-3 border-r border-gray-300 text-left">Data i godzina</th>
+                    <th class="px-6 py-3 border-r border-gray-300 text-left">Windy</th>
+                    <th class="px-6 py-3 border-r border-gray-300 text-left">OpenWeatherMap</th>
+                    <th class="px-6 py-3 border-r border-gray-300 text-left">WeatherAPI</th>
+                    <th class="px-6 py-3 border-r border-gray-300 text-left">Python Weather</th>
+                    <th class="px-6 py-3 border-r border-gray-300 text-left">Open-Meteo</th>
+                    <th class="px-6 py-3 text-left">Visual Crossing</th>
                 </tr>
             </thead>
             <tbody>
                 {% for data in comparison_data %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 border-b">{{ data.hour }}</td>
-                    <td class="px-6 py-4 border-b">
+                <tr class="hover:bg-gray-50 border-b border-gray-300">
+                    <td class="px-6 py-4 border-r border-gray-300">{{ data.hour }}</td>
+                    <td class="px-6 py-4 border-r border-gray-300">
                         {% if data.windy_temp is not None %}
                             {{ data.windy_temp }}°C
                         {% else %}
                             -
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 border-b">
+                    <td class="px-6 py-4 border-r border-gray-300">
                         {% if data.openweather_temp is not None %}
                             {{ data.openweather_temp }}°C
                         {% else %}
                             -
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 border-b">
+                    <td class="px-6 py-4 border-r border-gray-300">
                         {% if data.weatherapi_temp is not None %}
                             {{ data.weatherapi_temp }}°C
                         {% else %}
                             -
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 border-b">
+                    <td class="px-6 py-4 border-r border-gray-300">
                         {% if data.python_weather_temp is not None %}
                             {{ data.python_weather_temp }}°C
                         {% else %}
                             -
                         {% endif %}
                     </td>
-                    <td class="px-6 py-4 border-b">
+                    <td class="px-6 py-4 border-r border-gray-300">
                         {% if data.open_meteo_temp is not None %}
                             {{ data.open_meteo_temp }}°C
                         {% else %}
                             -
                         {% endif %}
                     </td>
-
-                    <td class="px-6 py-4 border-b">
+                    <td class="px-6 py-4">
                         {% if data.virtualcrossing_temp is not None %}
                             {{ data.virtualcrossing_temp }}°C
                         {% else %}
