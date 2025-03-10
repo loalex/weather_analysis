@@ -4,7 +4,7 @@
 
 # Weather Analyzer v1.0
 
-![Weather Analyzer Logo](/static/images/weather_analizer.jpg)
+![Weather Analyzer Logo](/static/images/sun_icon.png)
 
 ## Project Description
 
