@@ -1,37 +1,24 @@
-from datetime import datetime, timedelta
-import json
-import math
-import urllib
+import os
 import json
 import math
 import urllib.request
-from urllib.parse import quote
-import requests
+from collections import defaultdict
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 import python_weather
-from geopy import Nominatim as loc
-
-from weatherbit.api import Api
-
-from django.shortcuts import render
-from django.shortcuts import render
+import requests
+from dateutil.parser import parse
+from dotenv import load_dotenv
 from geopy.geocoders import Nominatim
 from open_meteo import OpenMeteo
 from open_meteo.models import DailyParameters, HourlyParameters
-import python_weather
-import requests
 from weatherapi import WeatherPoint
 from weatherbit.api import Api
-from urllib.parse import quote
-from collections import defaultdict
-from geopy.geocoders import Nominatim
-from datetime import datetime
-from dateutil.parser import parse
+
 from django.shortcuts import render
-import requests
-from datetime import datetime
-from geopy.geocoders import Nominatim
+
+load_dotenv()
 
 loc = Nominatim(user_agent="Geopy Library")
 
@@ -40,7 +27,7 @@ def index(request):
     return render(request, "index.html")
 
 def fetch_windy_data(request):
-    API_KEY = "tvt0g6AqPDQ5tYN2e58BAVvAoRrjAaH3"
+    API_KEY = os.getenv("WINDY_API_KEY")
     API_URL = "https://api.windy.com/api/point-forecast/v2"
 
     headers = {
@@ -119,7 +106,7 @@ def fetch_windy_data(request):
 
 
 def fetch_weatherapp_data(request):
-    api_key = "0d1764dc7eace6612e7d9a5e1168371f"
+    api_key = os.getenv("OPENWEATHERMAP_API_KEY")
     default_city = "Gdynia"  # Domyślna lokalizacja
     geolocator = Nominatim(user_agent="weather_app")
 
@@ -177,7 +164,7 @@ def fetch_weatherapp_data(request):
 
 
 def fetch_weatherapi_data(request):
-    api_key = "32ac4dbcfb684f52b9275344240311"
+    api_key = os.getenv("WEATHERAPI_KEY")
 
     query = request.GET.get("localization_query", "Gdynia")
 
@@ -369,7 +356,7 @@ async def fetch_open_meteo_data(request):
 
 
 def fetch_weatherbit_data(request):
-    api_key = "e7f4bdfe9101470982721ecc9e87f4f3"
+    api_key = os.getenv("WEATHERBIT_API_KEY")
     geolocator = Nominatim(user_agent="weatherbit_app")
 
     query = request.GET.get("localization_query", "Gdynia")  # Domyślnie Gdynia
@@ -529,7 +516,7 @@ async def compare_temperatures(request):
             comparison_data[std_time][f'{source}_temp'] = temp
 
         # Windy
-        API_KEY = "tvt0g6AqPDQ5tYN2e58BAVvAoRrjAaH3"
+        API_KEY = os.getenv("WINDY_API_KEY")
         API_URL = "https://api.windy.com/api/point-forecast/v2"
         headers = {"Content-Type": "application/json"}
 
@@ -560,7 +547,7 @@ async def compare_temperatures(request):
 
     # OpenWeatherMap
     try:
-        api_key = "0d1764dc7eace6612e7d9a5e1168371f"
+        api_key = os.getenv("OPENWEATHERMAP_API_KEY")
         url = f"http://api.openweathermap.org/data/2.5/forecast?lat={getLoc.latitude}&lon={getLoc.longitude}&appid={api_key}"
         response = requests.get(url)
 
@@ -575,7 +562,7 @@ async def compare_temperatures(request):
 
     # WeatherAPI
     try:
-        api_key = "32ac4dbcfb684f52b9275344240311"
+        api_key = os.getenv("WEATHERAPI_KEY")
         url = f"https://api.weatherapi.com/v1/forecast.json?key={api_key}&q={query}&days=3"
         response = requests.get(url)
 
@@ -637,7 +624,7 @@ async def compare_temperatures(request):
 
     # Weatherbit
     try:
-        api_key = "e7f4bdfe9101470982721ecc9e87f4f3"
+        api_key = os.getenv("WEATHERBIT_API_KEY")
         api = Api(api_key)
         api.set_granularity("daily")
 
