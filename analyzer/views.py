@@ -5,7 +5,8 @@ import urllib.request
 from collections import defaultdict
 from datetime import datetime, timedelta
 from urllib.parse import quote
-
+import asyncio
+import sys
 import python_weather
 import requests
 from dateutil.parser import parse
@@ -266,14 +267,26 @@ async def getweather(request):
                 },
             )
 
+
+
         except Exception as e:
+
+            print(f"PYTHON WEATHER ERROR: {type(e).__name__}: {e}")
+
             return render(
+
                 request,
+
                 "error.html",
+
                 {
+
                     "message": f"Nie udało się pobrać prognozy pogody dla lokalizacji: {query}. Spróbuj ponownie.",
+
                     "query": query,
+
                 },
+
             )
 
 
